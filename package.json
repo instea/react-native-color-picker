@@ -1,0 +1,25 @@
+{
+  "name": "react-native-color-picker",
+  "version": "0.1.0",
+  "description": "Color picker for react native",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/instea/react-native-color-picker.git"
+  },
+  "author": "instea.co",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/instea/react-native-color-picker/issues"
+  },
+  "homepage": "https://github.com/instea/react-native-color-picker#readme",
+  "devDependencies": {
+    "babel-eslint": "^7.1.1",
+    "eslint": "^3.11.1",
+    "eslint-plugin-react": "^6.8.0"
+  }
+}
