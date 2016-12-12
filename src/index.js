@@ -11,6 +11,8 @@ export class ColorPicker extends Component {
       const { h: H, s: S, v: V } = tinycolor(props.originalColor).toHsv()
       Object.assign(this.state, { H, S, V })
     }
+    this.pageX = 0
+    this.pageY = 0
     this.onLayout = this.onLayout.bind(this)
     this.onSValueChange = this.onSValueChange.bind(this)
     this.onVValueChange = this.onVValueChange.bind(this)
@@ -43,6 +45,11 @@ export class ColorPicker extends Component {
     const layout = l.nativeEvent.layout
     if (['width', 'height'].some(key => layout[key] !== this.state[key])) {
       const { width, height } = layout
+      this.refs.container.measure((x, y, width, height, pageX, pageY) => {
+        // picker position in the screen
+        this.pageX = pageX
+        this.pageY = pageY
+      })
       this.setState({ width, height })
     }
   }
@@ -64,12 +71,12 @@ export class ColorPicker extends Component {
   }
 
   componentWillMount() {
-    this._pickerResponder = createRelativePanResponder({
+    this._pickerResponder = createPanResponder({
       onStart: ({ x, y }) => {
-        this.setState({ H: this.computeHValue(x, y) })
+        this.setState({ H: this.computeHValue(x - this.pageX, y - this.pageY) })
       },
       onMove: ({ x, y }) => {
-        this.setState({ H: this.computeHValue(x, y) })
+        this.setState({ H: this.computeHValue(x - this.pageX, y - this.pageY) })
       },
     })
   }
@@ -82,9 +89,8 @@ export class ColorPicker extends Component {
     const selectedColor = tinycolor({ h: H, s: S, v: V }).toRgbString()
     const indicatorColor = tinycolor({ h: H, s: 1, v: 1 }).toRgbString()
     const s = makeComputedStyles({ width, height, selectedColor, indicatorColor, originalColor, angle })
-    // TODO: indicator is stealing touch events
     return (
-      <View style={styles.container} onLayout={this.onLayout}>
+      <View style={styles.container} onLayout={this.onLayout} ref='container'>
         {!hasDimensions ? null :
         <View>
           <View style={[styles.pickerContainer, s.pickerContainer]} {...this._pickerResponder.panHandlers}>
@@ -220,25 +226,19 @@ const styles = StyleSheet.create({
 })
 
 const fn = () => true;
-
-// responder which is passing relative x, y postion to parent view
-const createRelativePanResponder = ({ onStart = fn, onMove = fn, onEnd = fn }) => {
-  let marginX = 0
-  let marginY = 0
+const createPanResponder = ({ onStart = fn, onMove = fn, onEnd = fn }) => {
   return PanResponder.create({
     onStartShouldSetPanResponder: fn,
     onStartShouldSetPanResponderCapture: fn,
     onPanResponderTerminationRequest: fn,
     onPanResponderGrant: (evt, state) => {
-      marginX = state.x0 - evt.nativeEvent.locationX
-      marginY = state.y0 - evt.nativeEvent.locationY
-      return onStart({ x: state.x0 - marginX, y: state.y0 - marginY }, evt, state)
+      return onStart({ x: state.x0, y: state.y0 }, evt, state)
     },
     onPanResponderMove: (evt, state) => {
-      return onMove({ x: state.moveX - marginX, y: state.moveY - marginY }, evt, state)
+      return onMove({ x: state.moveX, y: state.moveY }, evt, state)
     },
     onPanResponderRelease: (evt, state) => {
-      return onEnd({ x: state.moveX - marginX, y: state.moveY - marginY }, evt, state)
+      return onEnd({ x: state.moveX, y: state.moveY }, evt, state)
     },
   })
 }
