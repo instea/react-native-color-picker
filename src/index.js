@@ -35,62 +35,66 @@ export class ColorPicker extends Component {
     if (props.defaultColor) {
       this.state.color = tinycolor(props.defaultColor).toHsv()
     }
-    this.pageX = 0
-    this.pageY = 0
-    this.onLayout = this.onLayout.bind(this)
-    this.onSValueChange = this.onSValueChange.bind(this)
-    this.onVValueChange = this.onVValueChange.bind(this)
-    this.onColorSelected = this.onColorSelected.bind(this)
-    this.onOldColorSelected = this.onOldColorSelected.bind(this)
+    this._pageX = 0
+    this._pageY = 0
+    this._onLayout = this._onLayout.bind(this)
+    this._onSValueChange = this._onSValueChange.bind(this)
+    this._onVValueChange = this._onVValueChange.bind(this)
+    this._onColorSelected = this._onColorSelected.bind(this)
+    this._onOldColorSelected = this._onOldColorSelected.bind(this)
   }
 
-  onColorSelected() {
+  _getColor() {
+    const passedColor = typeof this.props.color === 'string'
+      ? tinycolor(this.props.color).toHsv()
+      : this.props.color
+    return passedColor || this.state.color
+  }
+
+  _onColorSelected() {
     const { onColorSelected } = this.props
-    const selected = this.props.color || this.state.color
-    const color = tinycolor(selected).toHexString()
+    const color = tinycolor(this._getColor()).toHexString()
     onColorSelected && onColorSelected(color)
   }
 
-  onOldColorSelected() {
-    const { oldColor } = this.props
+  _onOldColorSelected() {
+    const { oldColor, onOldColorSelected } = this.props
     const color = tinycolor(oldColor)
     this.setState({ color: color.toHsv() })
-    if (this.props.onOldColorSelected) {
-      this.props.onOldColorSelected(color.toHexString())
-    }
+    onOldColorSelected && onOldColorSelected(color.toHexString())
   }
 
-  onSValueChange(s) {
-    const { h, v } = this.state.color
-    this.onColorChange({ h, s, v })
+  _onSValueChange(s) {
+    const { h, v } = this._getColor()
+    this._onColorChange({ h, s, v })
   }
 
-  onVValueChange(v) {
-    const { h, s } = this.state.color
-    this.onColorChange({ h, s, v })
+  _onVValueChange(v) {
+    const { h, s } = this._getColor()
+    this._onColorChange({ h, s, v })
   }
 
-  onColorChange(color) {
+  _onColorChange(color) {
     this.setState({ color })
     if (this.props.onColorChange) {
       this.props.onColorChange(color)
     }
   }
 
-  onLayout(l) {
+  _onLayout(l) {
     const layout = l.nativeEvent.layout
     if (['width', 'height'].some(key => layout[key] !== this.state[key])) {
       const { width, height } = layout
       this.refs.container.measure((x, y, width, height, pageX, pageY) => {
         // picker position in the screen
-        this.pageX = pageX
-        this.pageY = pageY
+        this._pageX = pageX
+        this._pageY = pageY
       })
       this.setState({ width, height })
     }
   }
 
-  computeHValue(x, y) {
+  _computeHValue(x, y) {
     // TODO: make pickerSize at one place
     const pickerSize = this.state.width
     const mx = pickerSize / 2
@@ -101,16 +105,20 @@ export class ColorPicker extends Component {
     return rad * 180 / Math.PI % 360
   }
 
-  hValueToRad(deg) {
+  _hValueToRad(deg) {
     const rad = deg * Math.PI / 180
     return rad - Math.PI - Math.PI / 2
   }
 
+  getColor() {
+    return tinycolor(this._getColor()).toHexString()
+  }
+
   componentWillMount() {
     const handleColorChange = ({ x, y }) => {
-      const { s, v } = this.state.color
-      const h = this.computeHValue(x - this.pageX, y - this.pageY)
-      this.onColorChange({ h, s, v })
+      const { s, v } = this._getColor()
+      const h = this._computeHValue(x - this._pageX, y - this._pageY)
+      this._onColorChange({ h, s, v })
     }
     this._pickerResponder = createPanResponder({
       onStart: handleColorChange,
@@ -121,18 +129,15 @@ export class ColorPicker extends Component {
   render() {
     const { width, height } = this.state
     const { oldColor } = this.props
-    const passedColor = typeof this.props.color === 'string'
-      ? tinycolor(this.props.color).toHsv()
-      : this.props.color
-    const color = passedColor || this.state.color
+    const color = this._getColor()
     const { h, s, v } = color
-    const angle = this.hValueToRad(h)
+    const angle = this._hValueToRad(h)
     const hasDimensions = width && height
     const selectedColor = tinycolor(color).toHexString()
     const indicatorColor = tinycolor({ h, s: 1, v: 1 }).toHexString()
     const computed = makeComputedStyles({ width, height, selectedColor, indicatorColor, oldColor, angle })
     return (
-      <View style={styles.container} onLayout={this.onLayout} ref='container'>
+      <View style={styles.container} onLayout={this._onLayout} ref='container'>
         {!hasDimensions ? null :
         <View>
           <View style={[styles.pickerContainer, computed.pickerContainer]} {...this._pickerResponder.panHandlers}>
@@ -144,27 +149,27 @@ export class ColorPicker extends Component {
             <View style={[styles.pickerIndicator, computed.pickerIndicator]} />
           </View>
           <View style={styles.controls}>
-            <Slider value={s} onValueChange={this.onSValueChange} />
-            <Slider value={v} onValueChange={this.onVValueChange} />
+            <Slider value={s} onValueChange={this._onSValueChange} />
+            <Slider value={v} onValueChange={this._onVValueChange} />
           </View>
           {oldColor &&
           <TouchableOpacity
             style={[styles.selectedPreview, computed.selectedPreview]}
-            onPress={this.onColorSelected}
+            onPress={this._onColorSelected}
             activeOpacity={0.7}
           />
           }
           {oldColor &&
           <TouchableOpacity
             style={[styles.originalPreview, computed.originalPreview]}
-            onPress={this.onOldColorSelected}
+            onPress={this._onOldColorSelected}
             activeOpacity={0.7}
           />
           }
           {!oldColor &&
           <TouchableOpacity
             style={[styles.selectedFullPreview, computed.selectedFullPreview]}
-            onPress={this.onColorSelected}
+            onPress={this._onColorSelected}
             activeOpacity={0.7}
           />
           }
