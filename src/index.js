@@ -95,8 +95,7 @@ export class ColorPicker extends Component {
   }
 
   _computeHValue(x, y) {
-    // TODO: make pickerSize at one place
-    const pickerSize = this.state.width
+    const pickerSize = computePickerSize({ width: this.state.width })
     const mx = pickerSize / 2
     const my = pickerSize / 2
     const dx = x - mx
@@ -200,17 +199,19 @@ const makeComputedStyles = ({
   oldColor,
   angle,
 }) => {
-  const pickerSize = width
+  const pickerSize = computePickerSize({ width })
   const summarySize = 0.5 * pickerSize
   const indicatorPickerRatio = 42 / 510 // computed from picker image
   const indicatorSize = indicatorPickerRatio * pickerSize
-  const indicatorRadius = pickerSize / 2 - indicatorSize / 2
+  const pickerPadding = indicatorSize / 3
+  const indicatorRadius = pickerSize / 2 - indicatorSize / 2 - (pickerPadding - 1)
   const mx = pickerSize / 2
   const my = pickerSize / 2
   const dx = Math.cos(angle) * indicatorRadius
   const dy = Math.sin(angle) * indicatorRadius
   return {
     pickerContainer: {
+      padding: pickerPadding,
       width: pickerSize,
       height: pickerSize,
     },
@@ -285,6 +286,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
 })
+
+function computePickerSize({ width }) {
+  return width
+}
 
 const fn = () => true;
 const createPanResponder = ({ onStart = fn, onMove = fn, onEnd = fn }) => {
