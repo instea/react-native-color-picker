@@ -117,7 +117,10 @@ export class ColorPicker extends Component {
     const handleColorChange = ({ x, y }) => {
       const { s, v } = this._getColor()
       const marginLeft = (this._layout.width - this.state.pickerSize) / 2
-      const h = this._computeHValue(x - this._pageX - marginLeft, y - this._pageY)
+      const marginTop = (this._layout.height - this.state.pickerSize) / 2
+      const relativeX = x - this._pageX - marginLeft;
+      const relativeY = y - this._pageY - marginTop;
+      const h = this._computeHValue(relativeX, relativeY)
       this._onColorChange({ h, s, v })
     }
     this._pickerResponder = createPanResponder({
@@ -128,14 +131,13 @@ export class ColorPicker extends Component {
 
   render() {
     const { pickerSize } = this.state
-    const { oldColor } = this.props
+    const { oldColor, style } = this.props
     const color = this._getColor()
     const { h, s, v } = color
     const angle = this._hValueToRad(h)
     const selectedColor = tinycolor(color).toHexString()
     const indicatorColor = tinycolor({ h, s: 1, v: 1 }).toHexString()
     const computed = makeComputedStyles({
-      width: this._layout.width,
       pickerSize,
       selectedColor,
       indicatorColor,
@@ -143,12 +145,8 @@ export class ColorPicker extends Component {
       angle,
     })
     return (
-      <View style={styles.container}>
-        <View
-          onLayout={this._onLayout}
-          ref='pickerContainer'
-          style={!pickerSize ? {flex: 1} : {}}
-        >
+      <View style={style}>
+        <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
           {!pickerSize ? null :
           <View>
             <View
@@ -187,7 +185,7 @@ export class ColorPicker extends Component {
           </View>
           }
         </View>
-        <View style={styles.controls}>
+        <View>
           <Slider value={s} onValueChange={this._onSValueChange} />
           <Slider value={v} onValueChange={this._onVValueChange} />
         </View>
@@ -215,7 +213,6 @@ const makeComputedStyles = ({
   oldColor,
   angle,
   pickerSize,
-  width,
 }) => {
   const summarySize = 0.5 * pickerSize
   const indicatorPickerRatio = 42 / 510 // computed from picker image
@@ -226,10 +223,8 @@ const makeComputedStyles = ({
   const my = pickerSize / 2
   const dx = Math.cos(angle) * indicatorRadius
   const dy = Math.sin(angle) * indicatorRadius
-  const marginLeft = (width - pickerSize) / 2
   return {
     picker: {
-      marginLeft: marginLeft,
       padding: pickerPadding,
       width: pickerSize,
       height: pickerSize,
@@ -246,16 +241,16 @@ const makeComputedStyles = ({
       width: summarySize / 2,
       height: summarySize,
       top: pickerSize / 2 - summarySize / 2,
-      left: marginLeft + pickerSize / 2,
+      left: Math.floor(pickerSize / 2),
       borderTopRightRadius: summarySize / 2,
       borderBottomRightRadius: summarySize / 2,
       backgroundColor: selectedColor,
     },
     originalPreview: {
-      width: summarySize / 2,
+      width: Math.ceil(summarySize / 2),
       height: summarySize,
       top: pickerSize / 2 - summarySize / 2,
-      left: marginLeft + pickerSize / 2 - summarySize / 2,
+      left: pickerSize / 2 - summarySize / 2,
       borderTopLeftRadius: summarySize / 2,
       borderBottomLeftRadius: summarySize / 2,
       backgroundColor: oldColor,
@@ -264,7 +259,7 @@ const makeComputedStyles = ({
       width: summarySize,
       height: summarySize,
       top: pickerSize / 2 - summarySize / 2,
-      left: marginLeft + pickerSize / 2 - summarySize / 2,
+      left: pickerSize / 2 - summarySize / 2,
       borderRadius: summarySize / 2,
       backgroundColor: selectedColor,
     },
@@ -272,10 +267,10 @@ const makeComputedStyles = ({
 }
 
 const styles = StyleSheet.create({
-  container: {
+  pickerContainer: {
     flex: 1,
-  },
-  picker: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pickerImage: {
     flex: 1,
@@ -314,6 +309,8 @@ const createPanResponder = ({ onStart = fn, onMove = fn, onEnd = fn }) => {
   return PanResponder.create({
     onStartShouldSetPanResponder: fn,
     onStartShouldSetPanResponderCapture: fn,
+    onMoveShouldSetPanResponder: fn,
+    onMoveShouldSetPanResponderCapture: fn,
     onPanResponderTerminationRequest: fn,
     onPanResponderGrant: (evt, state) => {
       return onStart({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)

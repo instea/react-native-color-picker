@@ -24,6 +24,7 @@ export class ExampleControlledVertical extends React.Component {
           onColorChange={this.onColorChange}
           onColorSelected={color => alert(`Color selected: ${color}`)}
           onOldColorSelected={color => alert(`Old color selected: ${color}`)}
+          style={{flex: 1}}
         />
       </View>
     )
