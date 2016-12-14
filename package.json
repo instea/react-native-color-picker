@@ -21,5 +21,8 @@
     "babel-eslint": "^7.1.1",
     "eslint": "^3.11.1",
     "eslint-plugin-react": "^6.8.0"
+  },
+  "dependencies": {
+    "tinycolor2": "^1.4.1"
   }
 }
