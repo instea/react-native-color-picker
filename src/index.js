@@ -82,17 +82,18 @@ export class ColorPicker extends Component {
   }
 
   _onLayout(l) {
-    const layout = l.nativeEvent.layout
-    if (Object.keys(this._layout).some(key => layout[key] !== this._layout[key])) {
-      this._layout = layout
-      this.refs.pickerContainer.measure((x, y, width, height, pageX, pageY) => {
-        // picker position in the screen
-        this._pageX = pageX
-        this._pageY = pageY
-        const pickerSize = Math.min(width, height)
+    this._layout = l.nativeEvent.layout
+    // layout.x, layout.y is always 0
+    // we always measure because layout is the same even though picker is moved on the page
+    this.refs.pickerContainer.measure((x, y, width, height, pageX, pageY) => {
+      // picker position in the screen
+      this._pageX = pageX
+      this._pageY = pageY
+      const pickerSize = Math.min(width, height)
+      if (this.state.pickerSize !== pickerSize) {
         this.setState({ pickerSize })
-      })
-    }
+      }
+    })
   }
 
   _computeHValue(x, y) {
