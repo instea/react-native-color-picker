@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { PanResponder, TouchableOpacity, Slider, View, Image, StyleSheet } from 'react-native'
+import { PanResponder, TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 
 /**
@@ -83,16 +83,20 @@ export class ColorPicker extends Component {
 
   _onLayout(l) {
     this._layout = l.nativeEvent.layout
+    const { width, height } = this._layout
+    const pickerSize = Math.min(width, height)
+    if (this.state.pickerSize !== pickerSize) {
+      this.setState({ pickerSize })
+    }
     // layout.x, layout.y is always 0
     // we always measure because layout is the same even though picker is moved on the page
-    this.refs.pickerContainer.measure((x, y, width, height, pageX, pageY) => {
-      // picker position in the screen
-      this._pageX = pageX
-      this._pageY = pageY
-      const pickerSize = Math.min(width, height)
-      if (this.state.pickerSize !== pickerSize) {
-        this.setState({ pickerSize })
-      }
+    InteractionManager.runAfterInteractions(() => {
+      // measure only after (possible) animation ended
+      this.refs.pickerContainer && this.refs.pickerContainer.measure((x, y, width, height, pageX, pageY) => {
+        // picker position in the screen
+        this._pageX = pageX
+        this._pageY = pageY
+      })
     })
   }
 
