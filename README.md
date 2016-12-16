@@ -14,17 +14,62 @@ Install the color picker
 npm install react-native-color-picker --save
 ```
 And use it in your application
-```
+```javascript
 import { ColorPicker } from 'react-native-color-picker'
-...
-    <ColorPicker
-      onColorSelected={color => alert(`Color selected: ${color}`)}
-      style={{flex: 1}}
-    />
+
+const Picker = () => (
+  <ColorPicker
+    onColorSelected={color => alert(`Color selected: ${color}`)}
+    style={{flex: 1}}
+  />
+)
 ```
 Color picker will use space you provide. Therefore it is necessary to provide styles that will determine picker's size.
 
 ## API
+
+### Props
+
+`<ColorPicker />` accepts properties below. Each property which define color is represented as a string (named, HEX, RGB or HSV).
+
+| Property | Type | Note |
+|--------------------|------------|--------|
+|`color`             |`String|HSV`|Color string or HSV object (see below). Defines selected color in controlled component. |
+|`defaultColor`      |`String`    |Defines initial selected color in uncontrolled component.|
+|`oldColor`          |`String`    |Old color to be used for visual comparision. If it is not defined, whole circle is representing selected color.|
+|`style`             |`Style`     |Styles passed to color picker container|
+|`onColorSelected`   |`Function`  |Callback with color as argument called when user confirms color selection with.|
+|`onColorChange`     |`Function`  |Callback called each time when color is changed. Used in controlled component. Argument is color in HSV representation (see below)|
+|`onOldColorSelected`|`Function`  |Callback with color as argument called when user selects old color.|
+
+When using `<ColorPicker />` as controlled component you should always use HSV color representation to avoid conversion from/to HEX or RGB. HSV color representation is an object literal with properties:
+
+```javascript
+{
+  h: number, // <0, 360>
+  s: number, // <0, 1>
+  v: number, // <0, 1>
+}
+
+```
+
+### Helper functions
+
+To utilize HSV -> HEX/RGB conversion we provide helper functions:
+
+```javascript
+import { toHsv, fromHsv } from 'react-native-color-picker'
+
+toHsv('blue') // { h: 24, s: 1, v: 1 }
+
+fromHsv({ h: 200, s: 0.4, v:0.4 }) // #3d5866
+
+```
+
+## Examples
+
+* [Uncontrolled picker](examples/src/ExampleUncontrolledVertical.js)
+* [Controlled picker](examples/src/ExampleControlledVertical.js)
 
 ## Limitations
 * Does not work well within `ScrollView` due to touch event interference.
