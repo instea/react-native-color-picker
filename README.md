@@ -6,7 +6,7 @@ React Native implementation of color picker for both Android and iOS.
 ![iphone preview](preview_iphone.png)
 
 * [x] works both in controlled and uncontrolled way
-TODO img
+* [x] old color can be displayed for visual comparison
 
 ## Getting started
 Install the color picker
@@ -22,7 +22,7 @@ import { ColorPicker } from 'react-native-color-picker'
       style={{flex: 1}}
     />
 ```
-Color picker will use space ...
+Color picker will use space you provide. Therefore it is necessary to provide styles that will determine picker's size.
 
 ## API
 
