@@ -30,17 +30,17 @@ Color picker will use space you provide. Therefore it is necessary to provide st
 
 ### Props
 
-`<ColorPicker />` accepts properties below. Each property which define color is represented as a string (named, HEX, RGB or HSV).
+`<ColorPicker />` accepts properties below. Each property which define color is represented as a [color string](https://github.com/bgrins/TinyColor#accepted-string-input).
 
 | Property | Type | Note |
 |--------------------|------------|--------|
-|`color`             |`String|HSV`|Color string or HSV object (see below). Defines selected color in controlled component. |
+|`color`             |`String|HSV`|[Color string](https://github.com/bgrins/TinyColor#accepted-string-input) or HSV object (see below). Defines selected color in controlled component. |
 |`defaultColor`      |`String`    |Defines initial selected color in uncontrolled component.|
 |`oldColor`          |`String`    |Old color to be used for visual comparision. If it is not defined, whole circle is representing selected color.|
 |`style`             |`Style`     |Styles passed to color picker container|
-|`onColorSelected`   |`Function`  |Callback with color as argument called when user confirms color selection with.|
+|`onColorSelected`   |`Function`  |Callback with color (HEX string) as argument called when user confirms color selection.|
 |`onColorChange`     |`Function`  |Callback called each time when color is changed. Used in controlled component. Argument is color in HSV representation (see below)|
-|`onOldColorSelected`|`Function`  |Callback with color as argument called when user selects old color.|
+|`onOldColorSelected`|`Function`  |Callback with color (HEX string) as argument called when user selects old color.|
 
 When using `<ColorPicker />` as controlled component you should always use HSV color representation to avoid conversion from/to HEX or RGB. HSV color representation is an object literal with properties:
 
