@@ -2,8 +2,8 @@
 
 React Native implementation of color picker for both Android and iOS.
 
-![](preview_android.png | height=500)
-![](preview_iphone.png | height=500)
+![android preview](preview_android.png)
+![iphone preview](preview_iphone.png)
 
 * [x] works both in controlled and uncontrolled way
 TODO img
