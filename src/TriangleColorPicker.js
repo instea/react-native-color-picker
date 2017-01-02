@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { PanResponder, Slider, View, Image, StyleSheet, InteractionManager } from 'react-native'
+import { PanResponder, View, Image, StyleSheet, InteractionManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 
 export class TriangleColorPicker extends Component {
@@ -100,18 +100,72 @@ export class TriangleColorPicker extends Component {
     return tinycolor(this._getColor()).toHexString()
   }
 
+  _handleHColorChange({ x, y }) {
+    const { s, v } = this._getColor()
+    const marginLeft = (this._layout.width - this.state.pickerSize) / 2
+    const marginTop = (this._layout.height - this.state.pickerSize) / 2
+    const relativeX = x - this._pageX - marginLeft;
+    const relativeY = y - this._pageY - marginTop;
+    const h = this._computeHValue(relativeX, relativeY)
+    this._onColorChange({ h, s, v })
+  }
+
+  _handleSVColorChange({ x, y }) {
+    const { h, s: rawS, v: rawV } = this._computeColorFromTriangle({ x, y })
+    const s = Math.min(Math.max(0, rawS), 1)
+    const v = Math.min(Math.max(0, rawV), 1)
+    this._onColorChange({ h, s, v })
+  }
+
+  /**
+   * Computes s, v from position (x, y). If position is outside of triangle,
+   * it will return invalid values (greater than 1 or lower than 0)
+   */
+  _computeColorFromTriangle({ x, y }) {
+    const { pickerSize } = this.state
+    const { triangleHeight, triangleWidth } = getTriangleProperties(pickerSize)
+
+    const left = pickerSize / 2 - triangleWidth / 2
+    const top = pickerSize / 2 - 2 * triangleHeight / 3
+
+    // triangle relative coordinates
+    const marginLeft = (this._layout.width - this.state.pickerSize) / 2
+    const marginTop = (this._layout.height - this.state.pickerSize) / 2
+    const relativeX = x - this._pageX - marginLeft - left;
+    const relativeY = y - this._pageY - marginTop - top;
+
+    // rotation
+    const { h } = this._getColor()
+    const deg = (h - 330 + 360) % 360 // starting angle is 330 due to comfortable calculation
+    const rad = deg * Math.PI / 180
+    const center = {
+      x: triangleWidth / 2,
+      y: 2 * triangleHeight / 3,
+    }
+    const rotated = rotateAroundPoint(relativeX, relativeY, rad, center)
+
+    const line = triangleWidth * rotated.y / triangleHeight
+    const margin = triangleWidth / 2 - ((triangleWidth / 2) * rotated.y / triangleHeight)
+    const s = (rotated.x - margin) / line
+    const v = rotated.y / triangleHeight
+
+    return { h, s, v }
+  }
+
   componentWillMount() {
     const handleColorChange = ({ x, y }) => {
-      const { s, v } = this._getColor()
-      const marginLeft = (this._layout.width - this.state.pickerSize) / 2
-      const marginTop = (this._layout.height - this.state.pickerSize) / 2
-      const relativeX = x - this._pageX - marginLeft;
-      const relativeY = y - this._pageY - marginTop;
-      const h = this._computeHValue(relativeX, relativeY)
-      this._onColorChange({ h, s, v })
+      if (this._changingHColor) {
+        this._handleHColorChange({ x, y })
+      } else {
+        this._handleSVColorChange({ x, y })
+      }
     }
     this._pickerResponder = createPanResponder({
-      onStart: handleColorChange,
+      onStart: ({ x, y }) => {
+        const { s, v } = this._computeColorFromTriangle({ x, y })
+        this._changingHColor = s > 1 || s < 0 || v > 1 || v < 0
+        handleColorChange({ x, y })
+      },
       onMove: handleColorChange,
     })
   }
@@ -120,13 +174,14 @@ export class TriangleColorPicker extends Component {
     const { pickerSize } = this.state
     const { oldColor, style } = this.props
     const color = this._getColor()
-    const { h, s, v } = color
+    const { h } = color
     const angle = this._hValueToRad(h)
     const selectedColor = tinycolor(color).toHexString()
     const indicatorColor = tinycolor({ h, s: 1, v: 1 }).toHexString()
     const computed = makeComputedStyles({
       pickerSize,
       selectedColor,
+      selectedColorHsv: color,
       indicatorColor,
       oldColor,
       angle,
@@ -139,7 +194,7 @@ export class TriangleColorPicker extends Component {
             <View
               style={[styles.triangleContainer, computed.triangleContainer]}
             >
-              <View style={[styles.triangleUnderlayingCOlor, computed.triangleUnderlayingCOlor]} />
+              <View style={[styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]} />
               <Image
                 style={[styles.triangleImage, computed.triangleImage]}
                 source={require('../resources/hsv_triangle_mask.png')}
@@ -157,12 +212,12 @@ export class TriangleColorPicker extends Component {
               />
               <View style={[styles.pickerIndicator, computed.pickerIndicator]} />
             </View>
+            <View style={[styles.svIndicator, computed.svIndicator]} />
           </View>
           }
         </View>
         <View>
-          <Slider value={s} onValueChange={this._onSValueChange} />
-          <Slider value={v} onValueChange={this._onVValueChange} />
+          <View style={{ width: 30, height: 30, backgroundColor: selectedColor }}></View>
         </View>
       </View>
     )
@@ -182,11 +237,26 @@ TriangleColorPicker.propTypes = {
   onOldColorSelected: PropTypes.func,
 }
 
+function getTriangleProperties(pickerSize) {
+  const indicatorPickerRatio = 42 / 510 // computed from picker image
+  const indicatorSize = indicatorPickerRatio * pickerSize
+  const pickerPadding = indicatorSize / 3
+
+  const triangleSize = pickerSize - 6 * pickerPadding
+  const triangleRadius = triangleSize / 2
+  const triangleHeight = triangleRadius * 3 / 2
+  const triangleWidth = 2 * triangleRadius * Math.sqrt(3 / 4) // pythagorean theorem
+
+  return { triangleSize, triangleRadius, triangleHeight, triangleWidth }
+}
+
 const makeComputedStyles = ({
   indicatorColor,
   angle,
   pickerSize,
+  selectedColorHsv,
 }) => {
+
   /* ===== INDICATOR ===== */
   const indicatorPickerRatio = 42 / 510 // computed from picker image
   const indicatorSize = indicatorPickerRatio * pickerSize
@@ -198,13 +268,32 @@ const makeComputedStyles = ({
   const dy = Math.sin(angle) * indicatorRadius
 
   /* ===== TRIANGLE ===== */
-  const triangleSize = pickerSize - 6 * pickerPadding
-  const triangleRadius = triangleSize / 2
-  const triangleHeight = triangleRadius * 3 / 2
-  const triangleWidth = 2 * triangleRadius * Math.sqrt(3 / 4) // pythagorean theorem
+  const { triangleSize, triangleHeight, triangleWidth } = getTriangleProperties(pickerSize)
   const triangleTop = pickerPadding * 3
   const triangleLeft = pickerPadding * 3
   const triangleAngle = -angle + Math.PI / 3
+
+  /* ===== SV INDICATOR ===== */
+  const { s, v, h } = selectedColorHsv
+  const svIndicatorSize = 18
+  const svY = v * triangleHeight
+  const margin = triangleWidth / 2 - v * (triangleWidth / 2)
+  const svX = s * (triangleWidth - 2 * margin) + margin
+  const svIndicatorMarginLeft = (pickerSize - triangleWidth) / 2
+  const svIndicatorMarginTop = (pickerSize - 4 * triangleHeight / 3) / 2
+
+  const deg = (h - 330 + 360) % 360 // starting angle is 330 due to comfortable calculation
+  const rad = deg * Math.PI / 180
+  const center = {
+    x: pickerSize / 2,
+    y: pickerSize / 2,
+  }
+  const svIndicatorPoint = rotateAroundPoint(
+    svIndicatorMarginTop + svY,
+    svIndicatorMarginLeft + svX,
+    rad,
+    center
+  )
 
   return {
     picker: {
@@ -220,6 +309,15 @@ const makeComputedStyles = ({
       borderRadius: indicatorSize / 2,
       backgroundColor: indicatorColor,
     },
+    svIndicator: {
+      position: 'absolute',
+      top: svIndicatorPoint.x - svIndicatorSize / 2,
+      left: svIndicatorPoint.y - svIndicatorSize / 2,
+      width: svIndicatorSize,
+      height: svIndicatorSize,
+      backgroundColor: 'blue',
+      borderRadius: svIndicatorSize / 2,
+    },
     triangleContainer: {
       width: triangleSize,
       height: triangleSize,
@@ -233,7 +331,7 @@ const makeComputedStyles = ({
       width: triangleWidth,
       height: triangleHeight,
     },
-    triangleUnderlayingCOlor: {
+    triangleUnderlayingColor: {
       left: (triangleSize - triangleWidth) / 2,
       borderLeftWidth: triangleWidth / 2,
       borderRightWidth: triangleWidth / 2,
@@ -269,7 +367,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
   },
-  triangleUnderlayingCOlor: {
+  triangleUnderlayingColor: {
     position: 'absolute',
     top: 0,
     width: 0,
@@ -302,4 +400,22 @@ const createPanResponder = ({ onStart = fn, onMove = fn, onEnd = fn }) => {
       return onEnd({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
     },
   })
+}
+
+function rotateAroundPoint(x, y, angle, point = { x: 0, y: 0 }) {
+  // translation to origin
+  const transOriginX = x - point.x
+  const transOriginY = y - point.y
+
+  // rotation around origin
+  const rotatedX = transOriginX * Math.cos(angle) - transOriginY * Math.sin(angle)
+  const rotatedY = transOriginY * Math.cos(angle) + transOriginX * Math.sin(angle)
+
+  // translate back from origin
+  const normalizedX = rotatedX + point.x
+  const normalizedY = rotatedY + point.y
+  return {
+    x: normalizedX,
+    y: normalizedY,
+  }
 }
