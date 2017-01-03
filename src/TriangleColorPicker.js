@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { PanResponder, View, Image, StyleSheet, InteractionManager } from 'react-native'
+import { TouchableOpacity, PanResponder, View, Image, StyleSheet, InteractionManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 
 export class TriangleColorPicker extends Component {
@@ -218,10 +218,18 @@ export class TriangleColorPicker extends Component {
           </View>
           }
         </View>
-        <View>
-          <View style={{ width: 30, height: 30, backgroundColor: selectedColor }}></View>
+        <View style={[styles.colorPreviews, computed.colorPreviews]}>
+          <TouchableOpacity
+            style={[styles.colorPreview, { backgroundColor: selectedColor }]}
+            onPress={this._onColorSelected}
+            activeOpacity={0.7}
+          />
           {oldColor &&
-            <View style={{ width: 30, height: 30, backgroundColor: oldColor }}></View>
+          <TouchableOpacity
+            style={[styles.colorPreview, { backgroundColor: oldColor }]}
+            onPress={this._onOldColorSelected}
+            activeOpacity={0.7}
+          />
           }
         </View>
       </View>
@@ -354,6 +362,9 @@ const makeComputedStyles = ({
       borderBottomWidth: triangleHeight,
       borderBottomColor: indicatorColor,
     },
+    colorPreviews: {
+      height: pickerSize * 0.1, // responsive height
+    },
   }
 }
 
@@ -396,6 +407,12 @@ const styles = StyleSheet.create({
   },
   pickerIndicatorTick: {
     width: 5,
+  },
+  colorPreviews: {
+    flexDirection: 'row',
+  },
+  colorPreview: {
+    flex: 1,
   },
 })
 
