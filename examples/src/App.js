@@ -2,10 +2,14 @@ import React from 'react'
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 import { ExampleUncontrolledVertical } from './ExampleUncontrolledVertical'
 import { ExampleControlledVertical } from './ExampleControlledVertical'
+import { ExampleControlledTriangle } from './ExampleControlledTriangle'
+import { ExampleUncontrolledTriangle } from './ExampleUncontrolledTriangle'
 
 const examples = [
   { Component: ExampleUncontrolledVertical, title: 'Uncontrolled vertical picker' },
   { Component: ExampleControlledVertical, title: 'Controlled vertical picker' },
+  { Component: ExampleUncontrolledTriangle, title: 'Uncontrolled triangle picker' },
+  { Component: ExampleControlledTriangle, title: 'Controlled triangle picker' },
 ]
 
 export class App extends React.Component {
