@@ -123,7 +123,7 @@ export class TriangleColorPicker extends Component {
    */
   _computeColorFromTriangle({ x, y }) {
     const { pickerSize } = this.state
-    const { triangleHeight, triangleWidth } = getTriangleProperties(pickerSize)
+    const { triangleHeight, triangleWidth } = getPickerProperties(pickerSize)
 
     const left = pickerSize / 2 - triangleWidth / 2
     const top = pickerSize / 2 - 2 * triangleHeight / 3
@@ -210,7 +210,9 @@ export class TriangleColorPicker extends Component {
                 resizeMode='contain'
                 style={[styles.pickerImage]}
               />
-              <View style={[styles.pickerIndicator, computed.pickerIndicator]} />
+              <View style={[styles.pickerIndicator, computed.pickerIndicator]}>
+                <View style={[styles.pickerIndicatorTick, computed.pickerIndicatorTick]}/>
+              </View>
             </View>
             <View style={[styles.svIndicator, computed.svIndicator]} />
           </View>
@@ -218,6 +220,9 @@ export class TriangleColorPicker extends Component {
         </View>
         <View>
           <View style={{ width: 30, height: 30, backgroundColor: selectedColor }}></View>
+          {oldColor &&
+            <View style={{ width: 30, height: 30, backgroundColor: oldColor }}></View>
+          }
         </View>
       </View>
     )
@@ -237,17 +242,26 @@ TriangleColorPicker.propTypes = {
   onOldColorSelected: PropTypes.func,
 }
 
-function getTriangleProperties(pickerSize) {
+function getPickerProperties(pickerSize) {
   const indicatorPickerRatio = 42 / 510 // computed from picker image
-  const indicatorSize = indicatorPickerRatio * pickerSize
-  const pickerPadding = indicatorSize / 3
+  const originalIndicatorSize = indicatorPickerRatio * pickerSize
+  const indicatorSize = originalIndicatorSize
+  const pickerPadding = originalIndicatorSize / 3
 
   const triangleSize = pickerSize - 6 * pickerPadding
   const triangleRadius = triangleSize / 2
   const triangleHeight = triangleRadius * 3 / 2
   const triangleWidth = 2 * triangleRadius * Math.sqrt(3 / 4) // pythagorean theorem
 
-  return { triangleSize, triangleRadius, triangleHeight, triangleWidth }
+  return {
+    triangleSize,
+    triangleRadius,
+    triangleHeight,
+    triangleWidth,
+    indicatorPickerRatio,
+    indicatorSize,
+    pickerPadding,
+  }
 }
 
 const makeComputedStyles = ({
@@ -256,11 +270,15 @@ const makeComputedStyles = ({
   pickerSize,
   selectedColorHsv,
 }) => {
+  const {
+    triangleSize,
+    triangleHeight,
+    triangleWidth,
+    indicatorSize,
+    pickerPadding,
+  } = getPickerProperties(pickerSize)
 
   /* ===== INDICATOR ===== */
-  const indicatorPickerRatio = 42 / 510 // computed from picker image
-  const indicatorSize = indicatorPickerRatio * pickerSize
-  const pickerPadding = indicatorSize / 3
   const indicatorRadius = pickerSize / 2 - indicatorSize / 2 - pickerPadding
   const mx = pickerSize / 2
   const my = pickerSize / 2
@@ -268,12 +286,12 @@ const makeComputedStyles = ({
   const dy = Math.sin(angle) * indicatorRadius
 
   /* ===== TRIANGLE ===== */
-  const { triangleSize, triangleHeight, triangleWidth } = getTriangleProperties(pickerSize)
   const triangleTop = pickerPadding * 3
   const triangleLeft = pickerPadding * 3
   const triangleAngle = -angle + Math.PI / 3
 
   /* ===== SV INDICATOR ===== */
+  const markerColor = 'rgba(0,0,0,0.8)'
   const { s, v, h } = selectedColorHsv
   const svIndicatorSize = 18
   const svY = v * triangleHeight
@@ -284,15 +302,9 @@ const makeComputedStyles = ({
 
   const deg = (h - 330 + 360) % 360 // starting angle is 330 due to comfortable calculation
   const rad = deg * Math.PI / 180
-  const center = {
-    x: pickerSize / 2,
-    y: pickerSize / 2,
-  }
+  const center = { x: pickerSize / 2, y: pickerSize / 2 }
   const svIndicatorPoint = rotateAroundPoint(
-    svIndicatorMarginTop + svY,
-    svIndicatorMarginLeft + svX,
-    rad,
-    center
+    svIndicatorMarginTop + svY, svIndicatorMarginLeft + svX, rad, center
   )
 
   return {
@@ -306,17 +318,21 @@ const makeComputedStyles = ({
       left: my + dy - indicatorSize / 2,
       width: indicatorSize,
       height: indicatorSize,
-      borderRadius: indicatorSize / 2,
-      backgroundColor: indicatorColor,
+      transform: [{
+        rotate: -angle + 'rad',
+      }],
+    },
+    pickerIndicatorTick: {
+      height: indicatorSize / 2,
+      backgroundColor: markerColor,
     },
     svIndicator: {
-      position: 'absolute',
       top: svIndicatorPoint.x - svIndicatorSize / 2,
       left: svIndicatorPoint.y - svIndicatorSize / 2,
       width: svIndicatorSize,
       height: svIndicatorSize,
-      backgroundColor: 'blue',
       borderRadius: svIndicatorSize / 2,
+      borderColor: markerColor,
     },
     triangleContainer: {
       width: triangleSize,
@@ -354,14 +370,8 @@ const styles = StyleSheet.create({
   },
   pickerIndicator: {
     position: 'absolute',
-    // Shadow only works on iOS.
-    shadowColor: 'black',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 3, height: 3 },
-    shadowRadius: 4,
-
-    // This will elevate the view on Android, causing shadow to be drawn.
-    elevation: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   triangleContainer: {
     position: 'absolute',
@@ -379,7 +389,14 @@ const styles = StyleSheet.create({
   },
   pickerAlignment: {
     alignItems: 'center',
-  }
+  },
+  svIndicator: {
+    position: 'absolute',
+    borderWidth: 4,
+  },
+  pickerIndicatorTick: {
+    width: 5,
+  },
 })
 
 const fn = () => true;
