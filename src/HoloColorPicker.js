@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react'
-import { PanResponder, TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager } from 'react-native'
+import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager } from 'react-native'
 import tinycolor from 'tinycolor2'
+import { createPanResponder } from './utils'
 
 export class HoloColorPicker extends Component {
 
@@ -290,23 +291,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   }
 })
-
-const fn = () => true;
-const createPanResponder = ({ onStart = fn, onMove = fn, onEnd = fn }) => {
-  return PanResponder.create({
-    onStartShouldSetPanResponder: fn,
-    onStartShouldSetPanResponderCapture: fn,
-    onMoveShouldSetPanResponder: fn,
-    onMoveShouldSetPanResponderCapture: fn,
-    onPanResponderTerminationRequest: fn,
-    onPanResponderGrant: (evt, state) => {
-      return onStart({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
-    },
-    onPanResponderMove: (evt, state) => {
-      return onMove({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
-    },
-    onPanResponderRelease: (evt, state) => {
-      return onEnd({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
-    },
-  })
-}

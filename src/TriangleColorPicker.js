@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react'
-import { TouchableOpacity, PanResponder, View, Image, StyleSheet, InteractionManager } from 'react-native'
+import { TouchableOpacity, View, Image, StyleSheet, InteractionManager } from 'react-native'
 import tinycolor from 'tinycolor2'
+import { createPanResponder, rotatePoint } from './utils'
 
 export class TriangleColorPicker extends Component {
 
@@ -142,7 +143,7 @@ export class TriangleColorPicker extends Component {
       x: triangleWidth / 2,
       y: 2 * triangleHeight / 3,
     }
-    const rotated = rotateAroundPoint(relativeX, relativeY, rad, center)
+    const rotated = rotatePoint({ x: relativeX, y: relativeY }, rad, center)
 
     const line = triangleWidth * rotated.y / triangleHeight
     const margin = triangleWidth / 2 - ((triangleWidth / 2) * rotated.y / triangleHeight)
@@ -219,11 +220,6 @@ export class TriangleColorPicker extends Component {
           }
         </View>
         <View style={[styles.colorPreviews, computed.colorPreviews]}>
-          <TouchableOpacity
-            style={[styles.colorPreview, { backgroundColor: selectedColor }]}
-            onPress={this._onColorSelected}
-            activeOpacity={0.7}
-          />
           {oldColor &&
           <TouchableOpacity
             style={[styles.colorPreview, { backgroundColor: oldColor }]}
@@ -231,6 +227,11 @@ export class TriangleColorPicker extends Component {
             activeOpacity={0.7}
           />
           }
+          <TouchableOpacity
+            style={[styles.colorPreview, { backgroundColor: selectedColor }]}
+            onPress={this._onColorSelected}
+            activeOpacity={0.7}
+          />
         </View>
       </View>
     )
@@ -311,9 +312,11 @@ const makeComputedStyles = ({
   const deg = (h - 330 + 360) % 360 // starting angle is 330 due to comfortable calculation
   const rad = deg * Math.PI / 180
   const center = { x: pickerSize / 2, y: pickerSize / 2 }
-  const svIndicatorPoint = rotateAroundPoint(
-    svIndicatorMarginTop + svY, svIndicatorMarginLeft + svX, rad, center
-  )
+  const notRotatedPoint = {
+    x: svIndicatorMarginTop + svY,
+    y: svIndicatorMarginLeft + svX,
+  }
+  const svIndicatorPoint = rotatePoint(notRotatedPoint, rad, center)
 
   return {
     picker: {
@@ -416,40 +419,3 @@ const styles = StyleSheet.create({
   },
 })
 
-const fn = () => true;
-const createPanResponder = ({ onStart = fn, onMove = fn, onEnd = fn }) => {
-  return PanResponder.create({
-    onStartShouldSetPanResponder: fn,
-    onStartShouldSetPanResponderCapture: fn,
-    onMoveShouldSetPanResponder: fn,
-    onMoveShouldSetPanResponderCapture: fn,
-    onPanResponderTerminationRequest: fn,
-    onPanResponderGrant: (evt, state) => {
-      return onStart({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
-    },
-    onPanResponderMove: (evt, state) => {
-      return onMove({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
-    },
-    onPanResponderRelease: (evt, state) => {
-      return onEnd({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
-    },
-  })
-}
-
-function rotateAroundPoint(x, y, angle, point = { x: 0, y: 0 }) {
-  // translation to origin
-  const transOriginX = x - point.x
-  const transOriginY = y - point.y
-
-  // rotation around origin
-  const rotatedX = transOriginX * Math.cos(angle) - transOriginY * Math.sin(angle)
-  const rotatedY = transOriginY * Math.cos(angle) + transOriginX * Math.sin(angle)
-
-  // translate back from origin
-  const normalizedX = rotatedX + point.x
-  const normalizedY = rotatedY + point.y
-  return {
-    x: normalizedX,
-    y: normalizedY,
-  }
-}
