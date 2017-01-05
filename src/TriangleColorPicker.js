@@ -214,8 +214,8 @@ export class TriangleColorPicker extends Component {
               <View style={[styles.pickerIndicator, computed.pickerIndicator]}>
                 <View style={[styles.pickerIndicatorTick, computed.pickerIndicatorTick]}/>
               </View>
+              <View style={[styles.svIndicator, computed.svIndicator]} />
             </View>
-            <View style={[styles.svIndicator, computed.svIndicator]} />
           </View>
           }
         </View>
