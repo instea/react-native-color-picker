@@ -7,6 +7,7 @@ React Native implementation of color picker for both Android and iOS.
 
 * [x] works both in controlled and uncontrolled way
 * [x] old color can be displayed for visual comparison
+* [x] holo and triangle color pickers
 
 ## Getting started
 Install the color picker
@@ -28,9 +29,22 @@ Color picker will use space you provide. Therefore it is necessary to provide st
 
 ## API
 
+### Color picker type
+
+We provide two types of color picker - holo (default) and triangle color picker. Both has the same API so that they are interchangable. Just import it and use it the same way:
+
+```javascript
+import { ColorPicker, TriangleColorPicker } from 'react-native-color-picker'
+```
+
+| ColorPicker | TriangleColorPicker |
+| ----------- | ------------------- |
+| ![](doc/holo.png) | ![](doc/triangle.png) |
+
+
 ### Props
 
-`<ColorPicker />` accepts properties below. Each property which define color is represented as a [color string](https://github.com/bgrins/TinyColor#accepted-string-input).
+Color pickers accepts properties below. Each property which define color is represented as a [color string](https://github.com/bgrins/TinyColor#accepted-string-input).
 
 | Property | Type | Note |
 |--------------------|------------|--------|
@@ -42,7 +56,7 @@ Color picker will use space you provide. Therefore it is necessary to provide st
 |`onColorChange`     |`Function`  |Callback called each time when color is changed. Used in controlled component. Argument is color in HSV representation (see below)|
 |`onOldColorSelected`|`Function`  |Callback with color (HEX string) as argument called when user selects old color.|
 
-When using `<ColorPicker />` as controlled component you should always use HSV color representation to avoid conversion from/to HEX or RGB. HSV color representation is an object literal with properties:
+When using color picker as a controlled component you should always use HSV color representation to avoid conversion from/to HEX or RGB. HSV color representation is an object literal with properties:
 
 ```javascript
 {
@@ -70,6 +84,8 @@ fromHsv({ h: 200, s: 0.4, v:0.4 }) // #3d5866
 
 * [Uncontrolled picker](examples/src/ExampleUncontrolledVertical.js)
 * [Controlled picker](examples/src/ExampleControlledVertical.js)
+* [Uncontrolled triangle picker](examples/src/ExampleUncontrolledTriangle.js)
+* [Controlled triangle picker](examples/src/ExampleControlledTriangle.js)
 
 ## Limitations
 * Does not work well within `ScrollView` due to touch event interference.
