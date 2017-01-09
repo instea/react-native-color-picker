@@ -37,6 +37,10 @@ We provide two types of color picker - holo (default) and triangle color picker.
 import { ColorPicker, TriangleColorPicker } from 'react-native-color-picker'
 ```
 
+| ColorPicker | TriangleColorPicker |
+| ----------- | ------------------- |
+| ![](doc/holo.png) | ![](doc/triangle.png) |
+
 
 ### Props
 
