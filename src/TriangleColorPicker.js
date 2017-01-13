@@ -118,6 +118,33 @@ export class TriangleColorPicker extends Component {
     this._onColorChange({ h, s, v })
   }
 
+  _normalizeTriangleTouch(s, v, sRatio) {
+    const CORNER_ZONE_SIZE = 0.12 // relative size to be considered as corner zone
+    const NORMAL_MARGIN = 0.10 // relative triangle margin to be considered as touch in triangle
+    const CORNER_MARGIN = 0.05 // relative triangle margin to be considered as touch in triangle in corner zone
+    let margin = NORMAL_MARGIN
+
+    const posNS = v > 0 ? 1 - (1 - s) * sRatio : 1 - s * sRatio
+    const negNS = v > 0 ? s * sRatio : (1 - s) * sRatio
+    const ns = s > 1 ? posNS : negNS // normalized s value according to ratio and s value
+
+    const rightCorner = s > 1 - CORNER_ZONE_SIZE && v > 1 - CORNER_ZONE_SIZE
+    const leftCorner = ns < 0 + CORNER_ZONE_SIZE && v > 1 - CORNER_ZONE_SIZE
+    const topCorner = ns < 0 + CORNER_ZONE_SIZE && v < 0 + CORNER_ZONE_SIZE
+    if (rightCorner) {
+      return { s, v }
+    }
+    if (leftCorner || topCorner) {
+      margin = CORNER_MARGIN
+    }
+    // color normalization according to margin
+    s = s < 0 && ns > 0 - margin ? 0 : s
+    s = s > 1 && ns < 1 + margin ? 1 : s
+    v = v < 0 && v > 0 - margin ? 0 : v
+    v = v > 1 && v < 1 + margin ? 1 : v
+    return { s, v }
+  }
+
   /**
    * Computes s, v from position (x, y). If position is outside of triangle,
    * it will return invalid values (greater than 1 or lower than 0)
@@ -150,7 +177,10 @@ export class TriangleColorPicker extends Component {
     const s = (rotated.x - margin) / line
     const v = rotated.y / triangleHeight
 
-    return { h, s, v }
+    // normalize
+    const normalized = this._normalizeTriangleTouch(s, v, line / triangleHeight)
+
+    return { h, s: normalized.s, v: normalized.v }
   }
 
   componentWillMount() {
