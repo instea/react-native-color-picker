@@ -18,6 +18,8 @@ export class TriangleColorPicker extends Component {
       this.state.color = tinycolor(props.defaultColor).toHsv()
     }
     this._layout = { width: 0, height: 0, x: 0, y: 0 }
+    this._pageX = 0
+    this._pageY = 0
     this._onLayout = this._onLayout.bind(this)
     this._onSValueChange = this._onSValueChange.bind(this)
     this._onVValueChange = this._onVValueChange.bind(this)
@@ -92,7 +94,11 @@ export class TriangleColorPicker extends Component {
 
   _handleHColorChange({ x, y }) {
     const { s, v } = this._getColor()
-    const h = this._computeHValue(x, y)
+    const marginLeft = (this._layout.width - this.state.pickerSize) / 2
+    const marginTop = (this._layout.height - this.state.pickerSize) / 2
+    const relativeX = x - this._pageX - marginLeft;
+    const relativeY = y - this._pageY - marginTop;
+    const h = this._computeHValue(relativeX, relativeY)
     this._onColorChange({ h, s, v })
   }
 
@@ -137,7 +143,8 @@ export class TriangleColorPicker extends Component {
   _computeColorFromTriangle({ x, y }) {
     const { pickerSize } = this.state
     const { triangleHeight, triangleWidth } = getPickerProperties(pickerSize)
-
+    const left = pickerSize / 2 - triangleWidth / 2
+    const top = pickerSize / 2 - 2 * triangleHeight / 3
     const relativeX = x - left;
     const relativeY = y - top;
 
