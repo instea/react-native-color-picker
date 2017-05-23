@@ -18,8 +18,6 @@ export class TriangleColorPicker extends Component {
       this.state.color = tinycolor(props.defaultColor).toHsv()
     }
     this._layout = { width: 0, height: 0, x: 0, y: 0 }
-    this._pageX = 0
-    this._pageY = 0
     this._onLayout = this._onLayout.bind(this)
     this._onSValueChange = this._onSValueChange.bind(this)
     this._onVValueChange = this._onVValueChange.bind(this)
@@ -71,16 +69,7 @@ export class TriangleColorPicker extends Component {
     if (this.state.pickerSize !== pickerSize) {
       this.setState({ pickerSize })
     }
-    // layout.x, layout.y is always 0
-    // we always measure because layout is the same even though picker is moved on the page
-    InteractionManager.runAfterInteractions(() => {
-      // measure only after (possible) animation ended
-      this.refs.pickerContainer && this.refs.pickerContainer.measure((x, y, width, height, pageX, pageY) => {
-        // picker position in the screen
-        this._pageX = pageX
-        this._pageY = pageY
-      })
-    })
+    
   }
 
   _computeHValue(x, y) {
@@ -103,11 +92,7 @@ export class TriangleColorPicker extends Component {
 
   _handleHColorChange({ x, y }) {
     const { s, v } = this._getColor()
-    const marginLeft = (this._layout.width - this.state.pickerSize) / 2
-    const marginTop = (this._layout.height - this.state.pickerSize) / 2
-    const relativeX = x - this._pageX - marginLeft;
-    const relativeY = y - this._pageY - marginTop;
-    const h = this._computeHValue(relativeX, relativeY)
+    const h = this._computeHValue(x, y)
     this._onColorChange({ h, s, v })
   }
 
@@ -153,14 +138,8 @@ export class TriangleColorPicker extends Component {
     const { pickerSize } = this.state
     const { triangleHeight, triangleWidth } = getPickerProperties(pickerSize)
 
-    const left = pickerSize / 2 - triangleWidth / 2
-    const top = pickerSize / 2 - 2 * triangleHeight / 3
-
-    // triangle relative coordinates
-    const marginLeft = (this._layout.width - this.state.pickerSize) / 2
-    const marginTop = (this._layout.height - this.state.pickerSize) / 2
-    const relativeX = x - this._pageX - marginLeft - left;
-    const relativeY = y - this._pageY - marginTop - top;
+    const relativeX = x - left;
+    const relativeY = y - top;
 
     // rotation
     const { h } = this._getColor()

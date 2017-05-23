@@ -31,13 +31,13 @@ export function createPanResponder({ onStart = fn, onMove = fn, onEnd = fn }) {
     onMoveShouldSetPanResponderCapture: fn,
     onPanResponderTerminationRequest: fn,
     onPanResponderGrant: (evt, state) => {
-      return onStart({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
+      return onStart({ x: evt.nativeEvent.locationX, y: evt.nativeEvent.locationY }, evt, state)
     },
     onPanResponderMove: (evt, state) => {
-      return onMove({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
+      return onMove({ x: evt.nativeEvent.locationX, y: evt.nativeEvent.locationY }, evt, state)
     },
     onPanResponderRelease: (evt, state) => {
-      return onEnd({ x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY }, evt, state)
+      return onEnd({ x: evt.nativeEvent.locationX, y: evt.nativeEvent.locationY }, evt, state)
     },
   })
 }
