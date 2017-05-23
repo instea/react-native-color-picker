@@ -94,11 +94,7 @@ export class TriangleColorPicker extends Component {
 
   _handleHColorChange({ x, y }) {
     const { s, v } = this._getColor()
-    const marginLeft = (this._layout.width - this.state.pickerSize) / 2
-    const marginTop = (this._layout.height - this.state.pickerSize) / 2
-    const relativeX = x - this._pageX - marginLeft;
-    const relativeY = y - this._pageY - marginTop;
-    const h = this._computeHValue(relativeX, relativeY)
+    const h = this._computeHValue(x, y)
     this._onColorChange({ h, s, v })
   }
 
