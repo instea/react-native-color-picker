@@ -25,7 +25,7 @@ export class TriangleColorPicker extends Component {
     this._onVValueChange = this._onVValueChange.bind(this)
     this._onColorSelected = this._onColorSelected.bind(this)
     this._onOldColorSelected = this._onOldColorSelected.bind(this)
-    this._isRTL = I18nManager.isRTL;
+    this._isRTL = I18nManager.isRTL
   }
 
   _getColor() {
