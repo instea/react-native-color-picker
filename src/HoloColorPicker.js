@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager } from 'react-native'
+import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 import { createPanResponder } from './utils'
 
@@ -25,6 +25,7 @@ export class HoloColorPicker extends Component {
     this._onVValueChange = this._onVValueChange.bind(this)
     this._onColorSelected = this._onColorSelected.bind(this)
     this._onOldColorSelected = this._onOldColorSelected.bind(this)
+    this._isRTL = I18nManager.isRTL
   }
 
   _getColor() {
@@ -131,6 +132,7 @@ export class HoloColorPicker extends Component {
       indicatorColor,
       oldColor,
       angle,
+      isRTL: this._isRTL,
     })
     return (
       <View style={style}>
@@ -201,6 +203,7 @@ const makeComputedStyles = ({
   oldColor,
   angle,
   pickerSize,
+  isRTL,
 }) => {
   const summarySize = 0.5 * pickerSize
   const indicatorPickerRatio = 42 / 510 // computed from picker image
@@ -219,7 +222,7 @@ const makeComputedStyles = ({
     },
     pickerIndicator: {
       top: mx + dx - indicatorSize / 2,
-      left: my + dy - indicatorSize / 2,
+      [isRTL ? 'right' : 'left']: my + dy - indicatorSize / 2,
       width: indicatorSize,
       height: indicatorSize,
       borderRadius: indicatorSize / 2,
