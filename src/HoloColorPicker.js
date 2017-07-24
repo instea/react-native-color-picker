@@ -7,16 +7,17 @@ export class HoloColorPicker extends Component {
 
   constructor(props, ctx) {
     super(props, ctx)
-    this.state = {
+    const state = {
       color: { h: 0, s: 1, v: 1 },
       pickerSize: null,
     }
     if (props.oldColor) {
-      this.state.color = tinycolor(props.oldColor).toHsv()
+      state.color = tinycolor(props.oldColor).toHsv()
     }
     if (props.defaultColor) {
-      this.state.color = tinycolor(props.defaultColor).toHsv()
+      state.color = tinycolor(props.defaultColor).toHsv()
     }
+    this.state = state
     this._layout = { width: 0, height: 0, x: 0, y: 0 }
     this._pageX = 0
     this._pageY = 0
@@ -107,8 +108,8 @@ export class HoloColorPicker extends Component {
       const { s, v } = this._getColor()
       const marginLeft = (this._layout.width - this.state.pickerSize) / 2
       const marginTop = (this._layout.height - this.state.pickerSize) / 2
-      const relativeX = x - this._pageX - marginLeft;
-      const relativeY = y - this._pageY - marginTop;
+      const relativeX = x - this._pageX - marginLeft
+      const relativeY = y - this._pageY - marginTop
       const h = this._computeHValue(relativeX, relativeY)
       this._onColorChange({ h, s, v })
     }
@@ -292,5 +293,5 @@ const styles = StyleSheet.create({
   },
   pickerAlignment: {
     alignItems: 'center',
-  }
+  },
 })
