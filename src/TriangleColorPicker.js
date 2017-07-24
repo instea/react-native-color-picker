@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { TouchableOpacity, View, Image, StyleSheet, InteractionManager } from 'react-native'
+import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 import { createPanResponder, rotatePoint } from './utils'
 
@@ -25,6 +25,7 @@ export class TriangleColorPicker extends Component {
     this._onVValueChange = this._onVValueChange.bind(this)
     this._onColorSelected = this._onColorSelected.bind(this)
     this._onOldColorSelected = this._onOldColorSelected.bind(this)
+    this._isRTL = I18nManager.isRTL;
   }
 
   _getColor() {
@@ -216,6 +217,7 @@ export class TriangleColorPicker extends Component {
       indicatorColor,
       oldColor,
       angle,
+      isRTL: this._isRTL,
     })
     return (
       <View style={style}>
@@ -308,6 +310,7 @@ const makeComputedStyles = ({
   angle,
   pickerSize,
   selectedColorHsv,
+  isRTL,
 }) => {
   const {
     triangleSize,
@@ -356,7 +359,7 @@ const makeComputedStyles = ({
     },
     pickerIndicator: {
       top: mx + dx - indicatorSize / 2,
-      left: my + dy - indicatorSize / 2,
+      [isRTL ? 'right' : 'left']: my + dy - indicatorSize / 2,
       width: indicatorSize,
       height: indicatorSize,
       transform: [{
@@ -369,7 +372,7 @@ const makeComputedStyles = ({
     },
     svIndicator: {
       top: svIndicatorPoint.x - svIndicatorSize / 2,
-      left: svIndicatorPoint.y - svIndicatorSize / 2,
+      [isRTL ? 'right' : 'left']: svIndicatorPoint.y - svIndicatorSize / 2,
       width: svIndicatorSize,
       height: svIndicatorSize,
       borderRadius: svIndicatorSize / 2,
