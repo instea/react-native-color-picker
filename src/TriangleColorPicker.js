@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { TouchableOpacity, View, Image, StyleSheet, InteractionManager } from 'react-native'
+import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 import { createPanResponder, rotatePoint } from './utils'
 
@@ -7,16 +7,17 @@ export class TriangleColorPicker extends Component {
 
   constructor(props, ctx) {
     super(props, ctx)
-    this.state = {
+    const state = {
       color: { h: 0, s: 1, v: 1 },
       pickerSize: null,
     }
     if (props.oldColor) {
-      this.state.color = tinycolor(props.oldColor).toHsv()
+      state.color = tinycolor(props.oldColor).toHsv()
     }
     if (props.defaultColor) {
-      this.state.color = tinycolor(props.defaultColor).toHsv()
+      state.color = tinycolor(props.defaultColor).toHsv()
     }
+    this.state = state
     this._layout = { width: 0, height: 0, x: 0, y: 0 }
     this._pageX = 0
     this._pageY = 0
@@ -25,6 +26,7 @@ export class TriangleColorPicker extends Component {
     this._onVValueChange = this._onVValueChange.bind(this)
     this._onColorSelected = this._onColorSelected.bind(this)
     this._onOldColorSelected = this._onOldColorSelected.bind(this)
+    this._isRTL = I18nManager.isRTL
   }
 
   _getColor() {
@@ -105,8 +107,8 @@ export class TriangleColorPicker extends Component {
     const { s, v } = this._getColor()
     const marginLeft = (this._layout.width - this.state.pickerSize) / 2
     const marginTop = (this._layout.height - this.state.pickerSize) / 2
-    const relativeX = x - this._pageX - marginLeft;
-    const relativeY = y - this._pageY - marginTop;
+    const relativeX = x - this._pageX - marginLeft
+    const relativeY = y - this._pageY - marginTop
     const h = this._computeHValue(relativeX, relativeY)
     this._onColorChange({ h, s, v })
   }
@@ -159,8 +161,8 @@ export class TriangleColorPicker extends Component {
     // triangle relative coordinates
     const marginLeft = (this._layout.width - this.state.pickerSize) / 2
     const marginTop = (this._layout.height - this.state.pickerSize) / 2
-    const relativeX = x - this._pageX - marginLeft - left;
-    const relativeY = y - this._pageY - marginTop - top;
+    const relativeX = x - this._pageX - marginLeft - left
+    const relativeY = y - this._pageY - marginTop - top
 
     // rotation
     const { h } = this._getColor()
@@ -216,6 +218,7 @@ export class TriangleColorPicker extends Component {
       indicatorColor,
       oldColor,
       angle,
+      isRTL: this._isRTL,
     })
     return (
       <View style={style}>
@@ -308,6 +311,7 @@ const makeComputedStyles = ({
   angle,
   pickerSize,
   selectedColorHsv,
+  isRTL,
 }) => {
   const {
     triangleSize,
@@ -356,7 +360,7 @@ const makeComputedStyles = ({
     },
     pickerIndicator: {
       top: mx + dx - indicatorSize / 2,
-      left: my + dy - indicatorSize / 2,
+      [isRTL ? 'right' : 'left']: my + dy - indicatorSize / 2,
       width: indicatorSize,
       height: indicatorSize,
       transform: [{
@@ -369,7 +373,7 @@ const makeComputedStyles = ({
     },
     svIndicator: {
       top: svIndicatorPoint.x - svIndicatorSize / 2,
-      left: svIndicatorPoint.y - svIndicatorSize / 2,
+      [isRTL ? 'right' : 'left']: svIndicatorPoint.y - svIndicatorSize / 2,
       width: svIndicatorSize,
       height: svIndicatorSize,
       borderRadius: svIndicatorSize / 2,
@@ -448,4 +452,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 })
-

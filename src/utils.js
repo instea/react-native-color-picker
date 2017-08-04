@@ -19,7 +19,7 @@ export function fromHsv(hsv) {
   return tinycolor(hsv).toHexString()
 }
 
-const fn = () => true;
+const fn = () => true
 /**
  * Simplified pan responder wrapper.
  */

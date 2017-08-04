@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager } from 'react-native'
+import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 import { createPanResponder } from './utils'
 
@@ -7,16 +7,17 @@ export class HoloColorPicker extends Component {
 
   constructor(props, ctx) {
     super(props, ctx)
-    this.state = {
+    const state = {
       color: { h: 0, s: 1, v: 1 },
       pickerSize: null,
     }
     if (props.oldColor) {
-      this.state.color = tinycolor(props.oldColor).toHsv()
+      state.color = tinycolor(props.oldColor).toHsv()
     }
     if (props.defaultColor) {
-      this.state.color = tinycolor(props.defaultColor).toHsv()
+      state.color = tinycolor(props.defaultColor).toHsv()
     }
+    this.state = state
     this._layout = { width: 0, height: 0, x: 0, y: 0 }
     this._pageX = 0
     this._pageY = 0
@@ -25,6 +26,7 @@ export class HoloColorPicker extends Component {
     this._onVValueChange = this._onVValueChange.bind(this)
     this._onColorSelected = this._onColorSelected.bind(this)
     this._onOldColorSelected = this._onOldColorSelected.bind(this)
+    this._isRTL = I18nManager.isRTL
   }
 
   _getColor() {
@@ -106,8 +108,8 @@ export class HoloColorPicker extends Component {
       const { s, v } = this._getColor()
       const marginLeft = (this._layout.width - this.state.pickerSize) / 2
       const marginTop = (this._layout.height - this.state.pickerSize) / 2
-      const relativeX = x - this._pageX - marginLeft;
-      const relativeY = y - this._pageY - marginTop;
+      const relativeX = x - this._pageX - marginLeft
+      const relativeY = y - this._pageY - marginTop
       const h = this._computeHValue(relativeX, relativeY)
       this._onColorChange({ h, s, v })
     }
@@ -131,6 +133,7 @@ export class HoloColorPicker extends Component {
       indicatorColor,
       oldColor,
       angle,
+      isRTL: this._isRTL,
     })
     return (
       <View style={style}>
@@ -203,6 +206,7 @@ const makeComputedStyles = ({
   oldColor,
   angle,
   pickerSize,
+  isRTL,
 }) => {
   const summarySize = 0.5 * pickerSize
   const indicatorPickerRatio = 42 / 510 // computed from picker image
@@ -221,7 +225,7 @@ const makeComputedStyles = ({
     },
     pickerIndicator: {
       top: mx + dx - indicatorSize / 2,
-      left: my + dy - indicatorSize / 2,
+      [isRTL ? 'right' : 'left']: my + dy - indicatorSize / 2,
       width: indicatorSize,
       height: indicatorSize,
       borderRadius: indicatorSize / 2,
@@ -291,5 +295,5 @@ const styles = StyleSheet.create({
   },
   pickerAlignment: {
     alignItems: 'center',
-  }
+  },
 })
