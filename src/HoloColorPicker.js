@@ -176,10 +176,12 @@ export class HoloColorPicker extends Component {
           </View>
           }
         </View>
-        <View>
-          <Slider value={s} onValueChange={this._onSValueChange} />
-          <Slider value={v} onValueChange={this._onVValueChange} />
-        </View>
+        { this.props.hideSliders == true ? null :
+          <View>
+            <Slider value={s} onValueChange={this._onSValueChange} />
+            <Slider value={v} onValueChange={this._onVValueChange} />
+          </View>
+        }
       </View>
     )
   }
@@ -196,6 +198,7 @@ HoloColorPicker.propTypes = {
   onColorChange: PropTypes.func,
   onColorSelected: PropTypes.func,
   onOldColorSelected: PropTypes.func,
+  hideSliders: PropTypes.bool,
 }
 
 const makeComputedStyles = ({
