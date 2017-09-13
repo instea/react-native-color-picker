@@ -1,9 +1,10 @@
-import React, { Component, PropTypes } from 'react'
+import React from 'react'
+import PropTypes from 'prop-types';
 import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 import { createPanResponder, rotatePoint } from './utils'
 
-export class TriangleColorPicker extends Component {
+export class TriangleColorPicker extends React.PureComponent {
 
   constructor(props, ctx) {
     super(props, ctx)
