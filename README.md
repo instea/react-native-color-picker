@@ -46,9 +46,11 @@ import { ColorPicker, TriangleColorPicker } from 'react-native-color-picker'
 
 Color pickers accepts properties below. Each property which define color is represented as a [color string](https://github.com/bgrins/TinyColor#accepted-string-input).
 
+Both color pickers are [PureComponents](https://facebook.github.io/react/docs/react-api.html#react.purecomponent) thus if you want to update it you should not mutate its properties deeply.
+
 | Property | Type | Note |
 |--------------------|------------|--------|
-|`color`             |`String|HSV`|[Color string](https://github.com/bgrins/TinyColor#accepted-string-input) or HSV object (see below). Defines selected color in controlled component. |
+|`color`             |`String\|HSV`|[Color string](https://github.com/bgrins/TinyColor#accepted-string-input) or HSV object (see below). Defines selected color in controlled component. |
 |`defaultColor`      |`String`    |Defines initial selected color in uncontrolled component.|
 |`oldColor`          |`String`    |Old color to be used for visual comparision. If it is not defined, whole circle is representing selected color.|
 |`style`             |`Style`     |Styles passed to color picker container|
