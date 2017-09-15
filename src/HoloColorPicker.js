@@ -1,9 +1,10 @@
-import React, { Component, PropTypes } from 'react'
+import React from 'react'
+import PropTypes from 'prop-types';
 import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 import { createPanResponder } from './utils'
 
-export class HoloColorPicker extends Component {
+export class HoloColorPicker extends React.PureComponent {
 
   constructor(props, ctx) {
     super(props, ctx)
