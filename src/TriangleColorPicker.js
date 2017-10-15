@@ -61,7 +61,35 @@ export class TriangleColorPicker extends React.PureComponent {
   }
 
   _onColorChange(color) {
-    this.setState({ color })
+    //this.setState({ color })
+      // Instead of that we are using setNativeProps to boost performance
+      this.state.color = color;
+      const { pickerSize } = this.state
+      const { oldColor, style } = this.props
+      color = this._getColor()
+      const { h } = color
+      const angle = this._hValueToRad(h)
+      const selectedColor = tinycolor(color).toHexString()
+      const indicatorColor = tinycolor({ h, s: 1, v: 1 }).toHexString()
+      const computed = makeComputedStyles({
+          pickerSize,
+          selectedColor,
+          selectedColorHsv: color,
+          indicatorColor,
+          oldColor,
+          angle,
+          isRTL: this._isRTL,
+      })
+
+      this.preview.setNativeProps({style: [styles.colorPreview, { backgroundColor: selectedColor }]});
+      this.triangle.setNativeProps({style: [styles.triangleContainer, computed.triangleContainer]});
+      this.triangleImage.setNativeProps({style: [styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]});
+      this.pickerIndicator.setNativeProps({style: [styles.pickerIndicator, computed.pickerIndicator]});
+      this.svIndicator.setNativeProps({style: [styles.svIndicator, computed.svIndicator]});
+      if(this.oldPreview){
+          this.oldPreview.setNativeProps({style: [styles.colorPreview, { backgroundColor: selectedColor }]});
+      }
+
     if (this.props.onColorChange) {
       this.props.onColorChange(color)
     }
@@ -226,17 +254,17 @@ export class TriangleColorPicker extends React.PureComponent {
         <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
           {!pickerSize ? null :
           <View>
-            <View
+            <View ref = {ref => this.triangle = ref}
               style={[styles.triangleContainer, computed.triangleContainer]}
             >
-              <View style={[styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]} />
+              <View ref = {ref => this.triangleImage = ref}
+                  style={[styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]} />
               <Image
                 style={[styles.triangleImage, computed.triangleImage]}
                 source={require('../resources/hsv_triangle_mask.png')}
               />
             </View>
-            <View
-              {...this._pickerResponder.panHandlers}
+            <View {...this._pickerResponder.panHandlers}
               style={[styles.picker, computed.picker]}
               collapsable={false}
             >
@@ -245,10 +273,12 @@ export class TriangleColorPicker extends React.PureComponent {
                 resizeMode='contain'
                 style={[styles.pickerImage]}
               />
-              <View style={[styles.pickerIndicator, computed.pickerIndicator]}>
+              <View ref = {ref=>this.pickerIndicator=ref}
+                  style={[styles.pickerIndicator, computed.pickerIndicator]}>
                 <View style={[styles.pickerIndicatorTick, computed.pickerIndicatorTick]}/>
               </View>
-              <View style={[styles.svIndicator, computed.svIndicator]} />
+              <View ref = {ref=>this.svIndicator=ref}
+                  style={[styles.svIndicator, computed.svIndicator]} />
             </View>
           </View>
           }
@@ -256,12 +286,14 @@ export class TriangleColorPicker extends React.PureComponent {
         <View style={[styles.colorPreviews, computed.colorPreviews]}>
           {oldColor &&
           <TouchableOpacity
+              ref= {ref => this.oldPreview = ref}
             style={[styles.colorPreview, { backgroundColor: oldColor }]}
             onPress={this._onOldColorSelected}
             activeOpacity={0.7}
           />
           }
           <TouchableOpacity
+              ref= {ref => this.preview = ref}
             style={[styles.colorPreview, { backgroundColor: selectedColor }]}
             onPress={this._onColorSelected}
             activeOpacity={0.7}
