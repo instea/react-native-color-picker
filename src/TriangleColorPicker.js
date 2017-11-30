@@ -11,6 +11,7 @@ export class TriangleColorPicker extends React.Component {
     const state = {
       color: { h: 0, s: 1, v: 1 },
       pickerSize: null,
+      marginTopReload: 1,
     }
     if (props.oldColor) {
       state.color = tinycolor(props.oldColor).toHsv()
@@ -28,6 +29,7 @@ export class TriangleColorPicker extends React.Component {
     this._onColorSelected = this._onColorSelected.bind(this)
     this._onOldColorSelected = this._onOldColorSelected.bind(this)
     this._isRTL = I18nManager.isRTL
+    this.state.marginTopReload = 1;
   }
 
   _getColor() {
@@ -96,7 +98,9 @@ export class TriangleColorPicker extends React.Component {
   }
 
   componentDidMount(){
-    this.setState(this.state);
+    setTimeout(()=>{
+      this.setState({marginTopReload: 0});
+    }, 500);
   }
 
   _onLayout(l) {
@@ -256,7 +260,7 @@ export class TriangleColorPicker extends React.Component {
 
     return (
       <View style={style}>
-        <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
+        <View onLayout={this._onLayout} ref='pickerContainer' style={[styles.pickerContainer, {marginTop: this.state.marginTopReload}]}>
           {!pickerSize ? null :
             <View>
               <View ref = {ref => this.triangle = ref}
@@ -265,7 +269,7 @@ export class TriangleColorPicker extends React.Component {
                 <View ref = {ref => this.triangleImage = ref}
                       style={[styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]} />
                 <Image
-                  style={[styles.triangleImage, computed.triangleImage]}
+                  style={[styles.triangleImage, computed.triangleImage, {marginTop: this.state.marginTopReload}]}
                   source={require('../resources/hsv_triangle_mask.png')}
                 />
               </View>
@@ -276,7 +280,7 @@ export class TriangleColorPicker extends React.Component {
                 <Image
                   source={require('../resources/color-circle.png')}
                   resizeMode='contain'
-                  style={computed.colors}
+                  style={[computed.colors, {marginTop: this.state.marginTopReload}]}
                 />
                 <View ref = {ref=>this.pickerIndicator=ref}
                       style={[styles.pickerIndicator, computed.pickerIndicator]}>
