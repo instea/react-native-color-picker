@@ -4,6 +4,9 @@ import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nMana
 import tinycolor from 'tinycolor2'
 import { createPanResponder, rotatePoint } from './utils'
 
+const img1 = require('../resources/hsv_triangle_mask.png');
+const img2 = require('../resources/color-circle.png');
+
 export class TriangleColorPicker extends React.Component {
 
   constructor(props, ctx) {
@@ -11,7 +14,8 @@ export class TriangleColorPicker extends React.Component {
     const state = {
       color: { h: 0, s: 1, v: 1 },
       pickerSize: null,
-      marginTopReload: 1,
+      img1Key: Math.random(),
+      img2Key: Math.random(),
     }
     if (props.oldColor) {
       state.color = tinycolor(props.oldColor).toHsv()
@@ -29,7 +33,6 @@ export class TriangleColorPicker extends React.Component {
     this._onColorSelected = this._onColorSelected.bind(this)
     this._onOldColorSelected = this._onOldColorSelected.bind(this)
     this._isRTL = I18nManager.isRTL
-    this.state.marginTopReload = 1;
   }
 
   _getColor() {
@@ -99,8 +102,8 @@ export class TriangleColorPicker extends React.Component {
 
   componentDidMount(){
     setTimeout(()=>{
-      this.setState({marginTopReload: 0});
-    }, 500);
+      this.setState({ img1Key: Math.random(), img2Key: Math.random() });
+    },200);
   }
 
   _onLayout(l) {
@@ -260,7 +263,7 @@ export class TriangleColorPicker extends React.Component {
 
     return (
       <View style={style}>
-        <View onLayout={this._onLayout} ref='pickerContainer' style={[styles.pickerContainer, {marginTop: this.state.marginTopReload}]}>
+        <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
           {!pickerSize ? null :
             <View>
               <View ref = {ref => this.triangle = ref}
@@ -269,8 +272,9 @@ export class TriangleColorPicker extends React.Component {
                 <View ref = {ref => this.triangleImage = ref}
                       style={[styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]} />
                 <Image
-                  style={[styles.triangleImage, computed.triangleImage, {marginTop: this.state.marginTopReload}]}
-                  source={require('../resources/hsv_triangle_mask.png')}
+                  key = {this.state.img1Key}
+                  style={[styles.triangleImage, computed.triangleImage]}
+                  source={img1}
                 />
               </View>
               <View {...this._pickerResponder.panHandlers}
@@ -278,9 +282,10 @@ export class TriangleColorPicker extends React.Component {
                     collapsable={false}
               >
                 <Image
-                  source={require('../resources/color-circle.png')}
+                  key = {this.state.img2Key}
+                  source={img2}
                   resizeMode='contain'
-                  style={[computed.colors, {marginTop: this.state.marginTopReload}]}
+                  style={[computed.colors]}
                 />
                 <View ref = {ref=>this.pickerIndicator=ref}
                       style={[styles.pickerIndicator, computed.pickerIndicator]}>
