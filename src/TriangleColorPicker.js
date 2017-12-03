@@ -4,13 +4,18 @@ import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nMana
 import tinycolor from 'tinycolor2'
 import { createPanResponder, rotatePoint } from './utils'
 
-export class TriangleColorPicker extends React.PureComponent {
+const img1 = require('../resources/hsv_triangle_mask.png');
+const img2 = require('../resources/color-circle.png');
+
+export class TriangleColorPicker extends React.Component {
 
   constructor(props, ctx) {
     super(props, ctx)
     const state = {
       color: { h: 0, s: 1, v: 1 },
       pickerSize: null,
+      img1Key: Math.random(),
+      img2Key: Math.random(),
     }
     if (props.oldColor) {
       state.color = tinycolor(props.oldColor).toHsv()
@@ -61,10 +66,44 @@ export class TriangleColorPicker extends React.PureComponent {
   }
 
   _onColorChange(color) {
-    this.setState({ color })
+    //this.setState({ color })
+    // Instead of that we are using setNativeProps to boost performance
+    this.state.color = color;
+    const { pickerSize } = this.state
+    const { oldColor, style } = this.props
+    color = this._getColor()
+    const { h } = color
+    const angle = this._hValueToRad(h)
+    const selectedColor = tinycolor(color).toHexString()
+    const indicatorColor = tinycolor({ h, s: 1, v: 1 }).toHexString()
+    const computed = makeComputedStyles({
+      pickerSize,
+      selectedColor,
+      selectedColorHsv: color,
+      indicatorColor,
+      oldColor,
+      angle,
+      isRTL: this._isRTL,
+    })
+
+    this.preview.setNativeProps({style: [styles.colorPreview, { backgroundColor: selectedColor }]});
+    this.triangle.setNativeProps({style: [styles.triangleContainer, computed.triangleContainer]});
+    this.triangleImage.setNativeProps({style: [styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]});
+    this.pickerIndicator.setNativeProps({style: [styles.pickerIndicator, computed.pickerIndicator]});
+    this.svIndicator.setNativeProps({style: [styles.svIndicator, computed.svIndicator]});
+    if(this.oldPreview){
+      this.oldPreview.setNativeProps({style: [styles.colorPreview, { backgroundColor: selectedColor }]});
+    }
+
     if (this.props.onColorChange) {
       this.props.onColorChange(color)
     }
+  }
+
+  componentDidMount(){
+    setTimeout(()=>{
+      this.setState({ img1Key: Math.random(), img2Key: Math.random() });
+    },200);
   }
 
   _onLayout(l) {
@@ -221,47 +260,54 @@ export class TriangleColorPicker extends React.PureComponent {
       angle,
       isRTL: this._isRTL,
     })
+
     return (
       <View style={style}>
         <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
           {!pickerSize ? null :
-          <View>
-            <View
-              style={[styles.triangleContainer, computed.triangleContainer]}
-            >
-              <View style={[styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]} />
-              <Image
-                style={[styles.triangleImage, computed.triangleImage]}
-                source={require('../resources/hsv_triangle_mask.png')}
-              />
-            </View>
-            <View
-              {...this._pickerResponder.panHandlers}
-              style={[styles.picker, computed.picker]}
-              collapsable={false}
-            >
-              <Image
-                source={require('../resources/color-circle.png')}
-                resizeMode='contain'
-                style={[styles.pickerImage]}
-              />
-              <View style={[styles.pickerIndicator, computed.pickerIndicator]}>
-                <View style={[styles.pickerIndicatorTick, computed.pickerIndicatorTick]}/>
+            <View>
+              <View ref = {ref => this.triangle = ref}
+                    style={[styles.triangleContainer, computed.triangleContainer]}
+              >
+                <View ref = {ref => this.triangleImage = ref}
+                      style={[styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]} />
+                <Image
+                  key = {this.state.img1Key}
+                  style={[styles.triangleImage, computed.triangleImage]}
+                  source={img1}
+                />
               </View>
-              <View style={[styles.svIndicator, computed.svIndicator]} />
+              <View {...this._pickerResponder.panHandlers}
+                    style={[styles.picker, computed.picker]}
+                    collapsable={false}
+              >
+                <Image
+                  key = {this.state.img2Key}
+                  source={img2}
+                  resizeMode='contain'
+                  style={[computed.colors]}
+                />
+                <View ref = {ref=>this.pickerIndicator=ref}
+                      style={[styles.pickerIndicator, computed.pickerIndicator]}>
+                  <View style={[styles.pickerIndicatorTick, computed.pickerIndicatorTick]}/>
+                </View>
+                <View ref = {ref=>this.svIndicator=ref}
+                      style={[styles.svIndicator, computed.svIndicator]} />
+              </View>
             </View>
-          </View>
           }
         </View>
         <View style={[styles.colorPreviews, computed.colorPreviews]}>
           {oldColor &&
           <TouchableOpacity
+            ref= {ref => this.oldPreview = ref}
             style={[styles.colorPreview, { backgroundColor: oldColor }]}
             onPress={this._onOldColorSelected}
             activeOpacity={0.7}
           />
           }
           <TouchableOpacity
+            ref= {ref => this.preview = ref}
             style={[styles.colorPreview, { backgroundColor: selectedColor }]}
             onPress={this._onColorSelected}
             activeOpacity={0.7}
@@ -308,12 +354,12 @@ function getPickerProperties(pickerSize) {
 }
 
 const makeComputedStyles = ({
-  indicatorColor,
-  angle,
-  pickerSize,
-  selectedColorHsv,
-  isRTL,
-}) => {
+                              indicatorColor,
+                              angle,
+                              pickerSize,
+                              selectedColorHsv,
+                              isRTL,
+                            }) => {
   const {
     triangleSize,
     triangleHeight,
@@ -354,6 +400,10 @@ const makeComputedStyles = ({
   const svIndicatorPoint = rotatePoint(notRotatedPoint, rad, center)
 
   return {
+    colors: {
+      width: pickerSize - pickerPadding * 2,
+      height: pickerSize - pickerPadding * 2,
+    },
     picker: {
       padding: pickerPadding,
       width: pickerSize,
@@ -411,11 +461,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  pickerImage: {
-    flex: 1,
-    width: null,
-    height: null,
   },
   pickerIndicator: {
     position: 'absolute',

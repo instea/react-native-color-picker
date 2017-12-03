@@ -61,7 +61,33 @@ export class HoloColorPicker extends React.PureComponent {
   }
 
   _onColorChange(color) {
-    this.setState({ color })
+    //this.setState({ color })
+      // Instead of that we are using setNativeProps to boost performance
+      this.state.color = color;
+      const { pickerSize } = this.state
+      const { oldColor, style } = this.props
+      color = this._getColor()
+      const { h, s, v } = color
+      const angle = this._hValueToRad(h)
+      const selectedColor = tinycolor(color).toHexString()
+      const indicatorColor = tinycolor({ h, s: 1, v: 1 }).toHexString()
+      const computed = makeComputedStyles({
+          pickerSize,
+          selectedColor,
+          indicatorColor,
+          oldColor,
+          angle,
+          isRTL: this._isRTL,
+      })
+
+      this.pickerIndicator.setNativeProps({style: [styles.pickerIndicator, computed.pickerIndicator]});
+      if(this.selectedFullPreview){
+          this.selectedFullPreview.setNativeProps({style: [styles.selectedFullPreview, computed.selectedFullPreview]});
+      }if(this.selectedPreview){
+          this.selectedPreview.setNativeProps({style: [styles.selectedPreview, computed.selectedPreview]});
+      }if(this.originalPreview){
+          this.originalPreview.setNativeProps({style: [styles.originalPreview, computed.originalPreview]});
+      }
     if (this.props.onColorChange) {
       this.props.onColorChange(color)
     }
@@ -141,8 +167,7 @@ export class HoloColorPicker extends React.PureComponent {
         <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
           {!pickerSize ? null :
           <View>
-            <View
-              {...this._pickerResponder.panHandlers}
+            <View {...this._pickerResponder.panHandlers}
               style={[styles.picker, computed.picker]}
               collapsable={false}
             >
@@ -151,10 +176,12 @@ export class HoloColorPicker extends React.PureComponent {
                 resizeMode='contain'
                 style={[styles.pickerImage]}
               />
-              <View style={[styles.pickerIndicator, computed.pickerIndicator]} />
+              <View ref = {ref => this.pickerIndicator = ref}
+                  style={[styles.pickerIndicator, computed.pickerIndicator]} />
             </View>
             {oldColor &&
             <TouchableOpacity
+                ref = {ref => this.selectedPreview = ref}
               style={[styles.selectedPreview, computed.selectedPreview]}
               onPress={this._onColorSelected}
               activeOpacity={0.7}
@@ -162,6 +189,7 @@ export class HoloColorPicker extends React.PureComponent {
             }
             {oldColor &&
             <TouchableOpacity
+                ref = {ref => this.originalPreview = ref}
               style={[styles.originalPreview, computed.originalPreview]}
               onPress={this._onOldColorSelected}
               activeOpacity={0.7}
@@ -169,6 +197,7 @@ export class HoloColorPicker extends React.PureComponent {
             }
             {!oldColor &&
             <TouchableOpacity
+                ref = {ref => this.selectedFullPreview = ref}
               style={[styles.selectedFullPreview, computed.selectedFullPreview]}
               onPress={this._onColorSelected}
               activeOpacity={0.7}
