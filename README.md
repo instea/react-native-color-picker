@@ -12,7 +12,7 @@ React Native implementation of color picker for both Android and iOS.
 ## Getting started
 Install the color picker
 ```
-npm install react-native-color-picker --save
+npm i -s https://github.com/venits/react-native-color-picker
 ```
 And use it in your application
 ```javascript
