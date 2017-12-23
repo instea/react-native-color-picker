@@ -188,17 +188,25 @@ export class TriangleColorPicker extends React.PureComponent {
 
   componentWillMount() {
     const handleColorChange = ({ x, y }) => {
-      if (this._changingHColor) {
-        this._handleHColorChange({ x, y })
-      } else {
-        this._handleSVColorChange({ x, y })
+      if (this._changingHColor !== undefined) {
+        if (this._changingHColor) {
+          this._handleHColorChange({ x, y })
+        } else {
+          this._handleSVColorChange({ x, y })
+        }
       }
     }
     this._pickerResponder = createPanResponder({
       onStart: ({ x, y }) => {
-        const { s, v } = this._computeColorFromTriangle({ x, y })
-        this._changingHColor = s > 1 || s < 0 || v > 1 || v < 0
-        handleColorChange({ x, y })
+        this._changingHColor = undefined
+        this.refs.pickerContainer && this.refs.pickerContainer.measure((measureX, measureY, width, height, pageX, pageY) => {
+          // picker position in the screen
+          this._pageX = pageX
+          this._pageY = pageY
+          const { s, v } = this._computeColorFromTriangle({ x, y })
+          this._changingHColor = s > 1 || s < 0 || v > 1 || v < 0
+          handleColorChange({ x, y })
+        })
       },
       onMove: handleColorChange,
     })
