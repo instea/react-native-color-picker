@@ -28,6 +28,10 @@ export class HoloColorPicker extends React.PureComponent {
     this._onColorSelected = this._onColorSelected.bind(this)
     this._onOldColorSelected = this._onOldColorSelected.bind(this)
     this._isRTL = I18nManager.isRTL
+    this._pickerResponder = createPanResponder({
+      onStart: this._handleColorChange,
+      onMove: this._handleColorChange,
+    })
   }
 
   _getColor() {
@@ -86,6 +90,16 @@ export class HoloColorPicker extends React.PureComponent {
     })
   }
 
+  _handleColorChange = ({ x, y }) => {
+    const { s, v } = this._getColor()
+    const marginLeft = (this._layout.width - this.state.pickerSize) / 2
+    const marginTop = (this._layout.height - this.state.pickerSize) / 2
+    const relativeX = x - this._pageX - marginLeft
+    const relativeY = y - this._pageY - marginTop
+    const h = this._computeHValue(relativeX, relativeY)
+    this._onColorChange({ h, s, v })
+  }
+
   _computeHValue(x, y) {
     const mx = this.state.pickerSize / 2
     const my = this.state.pickerSize / 2
@@ -102,22 +116,6 @@ export class HoloColorPicker extends React.PureComponent {
 
   getColor() {
     return tinycolor(this._getColor()).toHexString()
-  }
-
-  componentWillMount() {
-    const handleColorChange = ({ x, y }) => {
-      const { s, v } = this._getColor()
-      const marginLeft = (this._layout.width - this.state.pickerSize) / 2
-      const marginTop = (this._layout.height - this.state.pickerSize) / 2
-      const relativeX = x - this._pageX - marginLeft
-      const relativeY = y - this._pageY - marginTop
-      const h = this._computeHValue(relativeX, relativeY)
-      this._onColorChange({ h, s, v })
-    }
-    this._pickerResponder = createPanResponder({
-      onStart: handleColorChange,
-      onMove: handleColorChange,
-    })
   }
 
   render() {

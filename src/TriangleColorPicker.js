@@ -28,6 +28,15 @@ export class TriangleColorPicker extends React.PureComponent {
     this._onColorSelected = this._onColorSelected.bind(this)
     this._onOldColorSelected = this._onOldColorSelected.bind(this)
     this._isRTL = I18nManager.isRTL
+
+    this._pickerResponder = createPanResponder({
+      onStart: ({ x, y }) => {
+        const { s, v } = this._computeColorFromTriangle({ x, y })
+        this._changingHColor = s > 1 || s < 0 || v > 1 || v < 0
+        this._handleColorChange({ x, y })
+      },
+      onMove: this._handleColorChange,
+    })
   }
 
   _getColor() {
@@ -102,6 +111,14 @@ export class TriangleColorPicker extends React.PureComponent {
 
   getColor() {
     return tinycolor(this._getColor()).toHexString()
+  }
+
+  _handleColorChange = ({ x, y }) => {
+    if (this._changingHColor) {
+      this._handleHColorChange({ x, y })
+    } else {
+      this._handleSVColorChange({ x, y })
+    }
   }
 
   _handleHColorChange({ x, y }) {
@@ -184,24 +201,6 @@ export class TriangleColorPicker extends React.PureComponent {
     const normalized = this._normalizeTriangleTouch(s, v, line / triangleHeight)
 
     return { h, s: normalized.s, v: normalized.v }
-  }
-
-  componentWillMount() {
-    const handleColorChange = ({ x, y }) => {
-      if (this._changingHColor) {
-        this._handleHColorChange({ x, y })
-      } else {
-        this._handleSVColorChange({ x, y })
-      }
-    }
-    this._pickerResponder = createPanResponder({
-      onStart: ({ x, y }) => {
-        const { s, v } = this._computeColorFromTriangle({ x, y })
-        this._changingHColor = s > 1 || s < 0 || v > 1 || v < 0
-        handleColorChange({ x, y })
-      },
-      onMove: handleColorChange,
-    })
   }
 
   render() {
