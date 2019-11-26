@@ -85,10 +85,8 @@ fromHsv({ h: 200, s: 0.4, v:0.4 }) // #3d5866
 
 ## Examples
 
-* [Uncontrolled picker](examples/src/ExampleUncontrolledVertical.js)
-* [Controlled picker](examples/src/ExampleControlledVertical.js)
-* [Uncontrolled triangle picker](examples/src/ExampleUncontrolledTriangle.js)
-* [Controlled triangle picker](examples/src/ExampleControlledTriangle.js)
+See our examples on [Expo](https://snack.expo.io/@sodik82/react-native-color-picker-example)
+
 
 ## Limitations
 * Does not work well within `ScrollView` due to touch event interference.
