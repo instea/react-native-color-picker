@@ -8,9 +8,9 @@ declare module 'react-native-color-picker' {
     defaultColor: string | HsvColor;
     oldColor?: string;
     style?: object;
-    onColorSelected: (selectedColor: HsvColor) => void;
+    onColorSelected: (selectedColor: string) => void;
     onColorChange: (selectedColor: HsvColor) => void;
-    onOldColorSelected?: (oldColor: HsvColor) => void;
+    onOldColorSelected?: (oldColor: string) => void;
     hideSliders?: boolean;
   }
 
