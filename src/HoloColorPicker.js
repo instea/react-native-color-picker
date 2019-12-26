@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
+import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
+import Slider from '@react-native-community/slider';
 import tinycolor from 'tinycolor2'
 import { createPanResponder } from './utils'
 

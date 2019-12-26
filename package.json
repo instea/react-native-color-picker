@@ -23,6 +23,7 @@
     "eslint-plugin-react": "^6.8.0"
   },
   "dependencies": {
+    "@react-native-community/slider": "^2.0.8",
     "prop-types": "^15.5.10",
     "tinycolor2": "^1.4.1"
   },
