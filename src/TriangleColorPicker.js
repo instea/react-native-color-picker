@@ -1,8 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
+import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager, Platform } from 'react-native'
 import tinycolor from 'tinycolor2'
 import { createPanResponder, rotatePoint } from './utils'
+
+const ios = Platform.OS === 'ios'
 
 export class TriangleColorPicker extends React.PureComponent {
 
@@ -220,12 +222,15 @@ export class TriangleColorPicker extends React.PureComponent {
       angle,
       isRTL: this._isRTL,
     })
+    // Hack for https://github.com/instea/react-native-color-picker/issues/17
+    const rotationHack = ios ? `r${angle}` : undefined
     return (
       <View style={style}>
         <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
           {!pickerSize ? null :
           <View>
             <View
+              key={rotationHack}
               style={[styles.triangleContainer, computed.triangleContainer]}
             >
               <View style={[styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]} />
@@ -244,7 +249,7 @@ export class TriangleColorPicker extends React.PureComponent {
                 resizeMode='contain'
                 style={[styles.pickerImage]}
               />
-              <View style={[styles.pickerIndicator, computed.pickerIndicator]}>
+              <View key={rotationHack} style={[styles.pickerIndicator, computed.pickerIndicator]}>
                 <View style={[styles.pickerIndicatorTick, computed.pickerIndicatorTick]}/>
               </View>
               <View style={[styles.svIndicator, computed.svIndicator]} />
