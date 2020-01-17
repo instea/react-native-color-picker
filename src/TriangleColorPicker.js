@@ -6,6 +6,15 @@ import { createPanResponder, rotatePoint } from './utils'
 
 const ios = Platform.OS === 'ios'
 
+function makeRotationKey(props, angle) {
+  const { rotationHackFactor } = props
+  if (!ios || rotationHackFactor < 1) {
+    return undefined
+  }
+  const key = Math.floor(angle * rotationHackFactor)
+  return `r${key}`
+}
+
 export class TriangleColorPicker extends React.PureComponent {
 
   constructor(props, ctx) {
@@ -223,7 +232,7 @@ export class TriangleColorPicker extends React.PureComponent {
       isRTL: this._isRTL,
     })
     // Hack for https://github.com/instea/react-native-color-picker/issues/17
-    const rotationHack = ios ? `r${angle}` : undefined
+    const rotationHack = makeRotationKey(this.props, angle)
     return (
       <View style={style}>
         <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
@@ -287,6 +296,11 @@ TriangleColorPicker.propTypes = {
   onColorChange: PropTypes.func,
   onColorSelected: PropTypes.func,
   onOldColorSelected: PropTypes.func,
+  rotationHackFactor: PropTypes.number,
+}
+
+TriangleColorPicker.defaultProps = {
+  rotationHackFactor: 100,
 }
 
 function getPickerProperties(pickerSize) {
