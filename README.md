@@ -90,6 +90,7 @@ See our examples on [Expo](https://snack.expo.io/@sodik82/react-native-color-pic
 
 ## Limitations
 * Does not work well within `ScrollView` due to touch event interference.
+* There is known [bug](https://github.com/instea/react-native-color-picker/issues/17) affecting RN 0.61 on IOS. See more info about the workaround. 
 
 ## Thanks
 Our implementation was inspired by [Android Holo ColorPicker](https://github.com/LarsWerkman/HoloColorPicker)
