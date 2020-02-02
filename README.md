@@ -11,10 +11,13 @@ React Native implementation of color picker for both Android and iOS.
 
 ## Getting started
 Install the color picker
+
 ```
 npm install react-native-color-picker --save
 ```
+
 And use it in your application
+
 ```javascript
 import { ColorPicker } from 'react-native-color-picker'
 
@@ -25,7 +28,10 @@ const Picker = () => (
   />
 )
 ```
+
 Color picker will use space you provide. Therefore it is necessary to provide styles that will determine picker's size.
+
+For HoloPicker (`ColorPicker`) you might need to install `@react-native-community/slider` and pass it (or any other Slider compatible component) as `sliderComponent` prop if you don't want to use deprecated RN `Slider`.
 
 ## API
 
@@ -90,6 +96,7 @@ See our examples on [Expo](https://snack.expo.io/@sodik82/react-native-color-pic
 
 ## Limitations
 * Does not work well within `ScrollView` due to touch event interference.
+* RN has deprecated `Slider` component. You need to provide Slider component as prop to overcome this. 
 * There is known [bug](https://github.com/instea/react-native-color-picker/issues/17) affecting RN 0.61 on IOS. See more info about the workaround. 
 
 ## Thanks

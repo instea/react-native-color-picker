@@ -4,6 +4,9 @@ import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager, 
 import tinycolor from 'tinycolor2'
 import { createPanResponder } from './utils'
 
+let defaultSliderComponent = Slider
+// don't know how to load dynamically
+
 export class HoloColorPicker extends React.PureComponent {
 
   constructor(props, ctx) {
@@ -114,6 +117,14 @@ export class HoloColorPicker extends React.PureComponent {
     return rad - Math.PI - Math.PI / 2
   }
 
+  _getSlider() {
+    const component = this.props.sliderComponent || defaultSliderComponent
+    if (!component && !this.props.hideSliders) {
+      throw new Error('You need to install `@react-native-community/slider` and pass it (or any other Slider compatible component) as `sliderComponent` prop')
+    }
+    return component
+  }
+
   getColor() {
     return tinycolor(this._getColor()).toHexString()
   }
@@ -134,6 +145,7 @@ export class HoloColorPicker extends React.PureComponent {
       angle,
       isRTL: this._isRTL,
     })
+    const SliderComp = this._getSlider()
     return (
       <View style={style}>
         <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
@@ -175,10 +187,10 @@ export class HoloColorPicker extends React.PureComponent {
           </View>
           }
         </View>
-        { this.props.hideSliders == true ? null :
+        { this.props.hideSliders ? null :
           <View>
-            <Slider value={s} onValueChange={this._onSValueChange} />
-            <Slider value={v} onValueChange={this._onVValueChange} />
+            <SliderComp value={s} onValueChange={this._onSValueChange} />
+            <SliderComp value={v} onValueChange={this._onVValueChange} />
           </View>
         }
       </View>
@@ -198,6 +210,7 @@ HoloColorPicker.propTypes = {
   onColorSelected: PropTypes.func,
   onOldColorSelected: PropTypes.func,
   hideSliders: PropTypes.bool,
+  sliderComponent: PropTypes.elementType,
 }
 
 const makeComputedStyles = ({
