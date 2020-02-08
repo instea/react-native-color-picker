@@ -4,9 +4,6 @@ import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager, 
 import tinycolor from 'tinycolor2'
 import { createPanResponder } from './utils'
 
-let defaultSliderComponent = Slider
-// don't know how to load dynamically
-
 export class HoloColorPicker extends React.PureComponent {
 
   constructor(props, ctx) {
@@ -118,11 +115,16 @@ export class HoloColorPicker extends React.PureComponent {
   }
 
   _getSlider() {
-    const component = this.props.sliderComponent || defaultSliderComponent
-    if (!component && !this.props.hideSliders) {
+    if (this.props.hideSliders) {
+      return undefined
+    }
+    if (this.props.sliderComponent) {
+      return this.props.sliderComponent
+    }
+    if (!Slider) {
       throw new Error('You need to install `@react-native-community/slider` and pass it (or any other Slider compatible component) as `sliderComponent` prop')
     }
-    return component
+    return Slider
   }
 
   getColor() {
