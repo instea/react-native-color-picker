@@ -1,14 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager, Platform } from 'react-native'
+import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
 import tinycolor from 'tinycolor2'
 import { createPanResponder, rotatePoint } from './utils'
 
-const ios = Platform.OS === 'ios'
-
 function makeRotationKey(props, angle) {
   const { rotationHackFactor } = props
-  if (!ios || rotationHackFactor < 1) {
+  if (rotationHackFactor < 1) {
     return undefined
   }
   const key = Math.floor(angle * rotationHackFactor)
