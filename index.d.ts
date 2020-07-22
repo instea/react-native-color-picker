@@ -12,6 +12,9 @@ declare module 'react-native-color-picker' {
     onColorChange: (selectedColor: HsvColor) => void;
     onOldColorSelected?: (oldColor: string) => void;
     hideSliders?: boolean;
+    hideButtons?: boolean;
+    customButtonColor?: string;
+    customButtonText?: string;
   }
 
   export interface SliderProps {
@@ -20,7 +23,7 @@ declare module 'react-native-color-picker' {
   }
   export interface IHoloPicker extends IPicker {
     sliderComponent: React.Component<SliderProps>;
-  } 
+  }
 
   export const ColorPicker: React.ComponentType<IHoloPicker>;
   export const TriangleColorPicker: React.ComponentType<IPicker>;

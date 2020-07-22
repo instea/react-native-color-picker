@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
+import { TouchableOpacity, View, Text, Image, StyleSheet, InteractionManager, I18nManager, Dimensions } from 'react-native'
 import tinycolor from 'tinycolor2'
 import { createPanResponder, rotatePoint } from './utils'
 
@@ -214,15 +214,18 @@ export class TriangleColorPicker extends React.PureComponent {
 
   render() {
     const { pickerSize } = this.state
-    const { oldColor, style } = this.props
+    const { oldColor, style, hideButtons, customButtonColor, customButtonText } = this.props
     const color = this._getColor()
     const { h } = color
     const angle = this._hValueToRad(h)
     const selectedColor = tinycolor(color).toHexString()
+    const systemColor = tinycolor(customButtonColor).toHexString()
+
     const indicatorColor = tinycolor({ h, s: 1, v: 1 }).toHexString()
     const computed = makeComputedStyles({
       pickerSize,
       selectedColor,
+      systemColor,
       selectedColorHsv: color,
       indicatorColor,
       oldColor,
@@ -233,51 +236,80 @@ export class TriangleColorPicker extends React.PureComponent {
     const rotationHack = makeRotationKey(this.props, angle)
     return (
       <View style={style}>
-        <View onLayout={this._onLayout} ref='pickerContainer' style={styles.pickerContainer}>
-          {!pickerSize ? null :
-          <View>
-            <View
-              key={rotationHack}
-              style={[styles.triangleContainer, computed.triangleContainer]}
-            >
-              <View style={[styles.triangleUnderlayingColor, computed.triangleUnderlayingColor]} />
-              <Image
-                style={[styles.triangleImage, computed.triangleImage]}
-                source={require('../resources/hsv_triangle_mask.png')}
-              />
-            </View>
-            <View
-              {...this._pickerResponder.panHandlers}
-              style={[styles.picker, computed.picker]}
-              collapsable={false}
-            >
-              <Image
-                source={require('../resources/color-circle.png')}
-                resizeMode='contain'
-                style={[styles.pickerImage]}
-              />
-              <View key={rotationHack} style={[styles.pickerIndicator, computed.pickerIndicator]}>
-                <View style={[styles.pickerIndicatorTick, computed.pickerIndicatorTick]}/>
+        <View
+          onLayout={this._onLayout}
+          ref="pickerContainer"
+          style={styles.pickerContainer}
+        >
+          {!pickerSize ? null : (
+            <View>
+              <View
+                key={rotationHack}
+                style={[styles.triangleContainer, computed.triangleContainer]}
+              >
+                <View
+                  style={[
+                    styles.triangleUnderlayingColor,
+                    computed.triangleUnderlayingColor,
+                  ]}
+                />
+                <Image
+                  style={[styles.triangleImage, computed.triangleImage]}
+                  source={require("../resources/hsv_triangle_mask.png")}
+                />
               </View>
-              <View style={[styles.svIndicator, computed.svIndicator]} />
+              <View
+                {...this._pickerResponder.panHandlers}
+                style={[styles.picker, computed.picker]}
+                collapsable={false}
+              >
+                <Image
+                  source={require("../resources/color-circle.png")}
+                  resizeMode="contain"
+                  style={[styles.pickerImage]}
+                />
+                <View
+                  key={rotationHack}
+                  style={[styles.pickerIndicator, computed.pickerIndicator]}
+                >
+                  <View
+                    style={[
+                      styles.pickerIndicatorTick,
+                      computed.pickerIndicatorTick,
+                    ]}
+                  />
+                </View>
+                <View style={[styles.svIndicator, computed.svIndicator]} />
+              </View>
             </View>
+          )}
+        </View>
+        {hideButtons ? (
+          <View style={StyleSheet.flatten([styles.customColorPreviews])}>
+            <TouchableOpacity
+              style={[styles.customColorPreview, {backgroundColor: systemColor}]}
+              onPress={this._onColorSelected}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.customButtonText}>{customButtonText}</Text>
+            </TouchableOpacity>
           </View>
-          }
-        </View>
-        <View style={[styles.colorPreviews, computed.colorPreviews]}>
-          {oldColor &&
-          <TouchableOpacity
-            style={[styles.colorPreview, { backgroundColor: oldColor }]}
-            onPress={this._onOldColorSelected}
-            activeOpacity={0.7}
-          />
-          }
-          <TouchableOpacity
-            style={[styles.colorPreview, { backgroundColor: selectedColor }]}
-            onPress={this._onColorSelected}
-            activeOpacity={0.7}
-          />
-        </View>
+        ) : (
+          <View style={[styles.colorPreviews, computed.colorPreviews]}>
+            {oldColor && (
+              <TouchableOpacity
+                style={[styles.colorPreview, { backgroundColor: oldColor }]}
+                onPress={this._onOldColorSelected}
+                activeOpacity={0.7}
+              />
+            )}
+            <TouchableOpacity
+              style={[styles.colorPreview, { backgroundColor: selectedColor }]}
+              onPress={this._onColorSelected}
+              activeOpacity={0.7}
+            />
+          </View>
+        )}
       </View>
     )
   }
@@ -295,6 +327,9 @@ TriangleColorPicker.propTypes = {
   onColorSelected: PropTypes.func,
   onOldColorSelected: PropTypes.func,
   rotationHackFactor: PropTypes.number,
+  hideButtons: PropTypes.bool,
+  customButtonColor: PropTypes.string,
+  customButtonText: PropTypes.string,
 }
 
 TriangleColorPicker.defaultProps = {
@@ -467,5 +502,23 @@ const styles = StyleSheet.create({
   },
   colorPreview: {
     flex: 1,
+  },
+  customColorPreivews: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  customColorPreview: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    height: 50,
+    borderRadius: 10,
+    width: 270,
+  },
+  customButtonText: {
+    color: 'white',
+    fontSize: 20,
+    alignSelf: 'center',
   },
 })
