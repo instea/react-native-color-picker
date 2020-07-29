@@ -264,7 +264,8 @@ export class TriangleColorPicker extends React.PureComponent {
           </View>
           }
         </View>
-        <View style={[styles.colorPreviews, computed.colorPreviews]}>
+        { this.props.hideControls === false && 
+          <View style={[styles.colorPreviews, computed.colorPreviews]}>
           {oldColor &&
           <TouchableOpacity
             style={[styles.colorPreview, { backgroundColor: oldColor }]}
@@ -278,6 +279,7 @@ export class TriangleColorPicker extends React.PureComponent {
             activeOpacity={0.7}
           />
         </View>
+       }
       </View>
     )
   }
@@ -295,10 +297,12 @@ TriangleColorPicker.propTypes = {
   onColorSelected: PropTypes.func,
   onOldColorSelected: PropTypes.func,
   rotationHackFactor: PropTypes.number,
+  hideControls: PropTypes.bool,
 }
 
 TriangleColorPicker.defaultProps = {
   rotationHackFactor: 100,
+  hideControls: false,
 }
 
 function getPickerProperties(pickerSize) {
