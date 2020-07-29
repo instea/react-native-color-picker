@@ -179,7 +179,7 @@ export class HoloColorPicker extends React.PureComponent {
               activeOpacity={0.7}
             />
             }
-            {!oldColor && this.props.hideColorCycle === false &&
+            {!oldColor && this.props.hideOldColor === false &&
             <TouchableOpacity
               style={[styles.selectedFullPreview, computed.selectedFullPreview]}
               onPress={this._onColorSelected}
@@ -213,7 +213,7 @@ HoloColorPicker.propTypes = {
   onOldColorSelected: PropTypes.func,
   hideSliders: PropTypes.bool,
   sliderComponent: PropTypes.elementType,
-  hideColorCycle: PropTypes.bool,
+  hideOldColor: PropTypes.bool,
 }
 
 const makeComputedStyles = ({
