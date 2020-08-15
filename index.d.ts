@@ -4,12 +4,12 @@ declare module 'react-native-color-picker' {
   type HsvColor = { h: number; s: number; v: number };
 
   export interface IPicker {
-    color: string | HsvColor;
-    defaultColor: string | HsvColor;
+    color?: string | HsvColor;
+    defaultColor?: string | HsvColor;
     oldColor?: string;
     style?: object;
-    onColorSelected: (selectedColor: string) => void;
-    onColorChange: (selectedColor: HsvColor) => void;
+    onColorSelected?: (selectedColor: string) => void;
+    onColorChange?: (selectedColor: HsvColor) => void;
     onOldColorSelected?: (oldColor: string) => void;
     hideSliders?: boolean;
   }
