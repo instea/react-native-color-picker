@@ -264,20 +264,22 @@ export class TriangleColorPicker extends React.PureComponent {
           </View>
           }
         </View>
-        <View style={[styles.colorPreviews, computed.colorPreviews]}>
-          {oldColor &&
-          <TouchableOpacity
-            style={[styles.colorPreview, { backgroundColor: oldColor }]}
-            onPress={this._onOldColorSelected}
-            activeOpacity={0.7}
-          />
-          }
-          <TouchableOpacity
-            style={[styles.colorPreview, { backgroundColor: selectedColor }]}
-            onPress={this._onColorSelected}
-            activeOpacity={0.7}
-          />
-        </View>
+        { this.props.hideSliders == true ? null :
+          <View style={[styles.colorPreviews, computed.colorPreviews]}>
+            {oldColor &&
+            <TouchableOpacity
+              style={[styles.colorPreview, { backgroundColor: oldColor }]}
+              onPress={this._onOldColorSelected}
+              activeOpacity={0.7}
+            />
+            }
+            <TouchableOpacity
+              style={[styles.colorPreview, { backgroundColor: selectedColor }]}
+              onPress={this._onColorSelected}
+              activeOpacity={0.7}
+            />
+          </View>
+        }
       </View>
     )
   }
