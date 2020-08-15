@@ -64,6 +64,7 @@ Both color pickers are [PureComponents](https://facebook.github.io/react/docs/re
 |`onColorChange`     |`Function`  |Callback called each time when color is changed. Used in controlled component. Argument is color in HSV representation (see below)|
 |`onOldColorSelected`|`Function`  |Callback with color (HEX string) as argument called when user selects old color.|
 |`hideSliders`       |`Boolean`   |Option to hide bottom sliders (holo picker only) |
+|`hideControls`      |`Boolean`   |Option to hide bottom buttons (triangle picker only) |
 
 When using color picker as a controlled component you should always use HSV color representation to avoid conversion from/to HEX or RGB. HSV color representation is an object literal with properties:
 
