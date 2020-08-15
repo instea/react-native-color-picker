@@ -22,15 +22,15 @@
   },
   "homepage": "https://github.com/instea/react-native-color-picker#readme",
   "devDependencies": {
+    "@types/react": "^16.9.38",
+    "@types/react-native": "^0.62.13",
+    "@types/tinycolor2": "^1.4.2",
     "babel-eslint": "^7.1.1",
     "eslint": "^3.11.1",
     "eslint-plugin-react": "^6.8.0",
-    "@types/react": "^16.9.38",
-    "@types/react-native": "^0.62.13",
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@types/tinycolor2": "^1.4.2",
     "prop-types": "^15.5.10",
     "tinycolor2": "^1.4.1"
   }
