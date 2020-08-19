@@ -25,5 +25,7 @@
     "comma-dangle": [1, "always-multiline"],
     "react/prop-types": 0,
     "react/no-did-mount-set-state": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/explicit-module-boundary-types": 0
   }
 }

@@ -2,10 +2,10 @@ import {
   GestureResponderEvent,
   PanResponder,
   PanResponderGestureState,
-} from "react-native";
-import tinycolor from "tinycolor2";
+} from "react-native"
+import tinycolor from "tinycolor2"
 
-import { HsvColor, Point2D } from "./typeHelpers";
+import { HsvColor, Point2D } from "./typeHelpers"
 
 /**
  * Converts color to hsv representation.
@@ -13,7 +13,7 @@ import { HsvColor, Point2D } from "./typeHelpers";
  * @return {object} { h: number, s: number, v: number } object literal
  */
 export function toHsv(color: string): HsvColor {
-  return tinycolor(color).toHsv();
+  return tinycolor(color).toHsv()
 }
 
 /**
@@ -22,7 +22,7 @@ export function toHsv(color: string): HsvColor {
  * @return {string} color in hexa representation
  */
 export function fromHsv(hsv: HsvColor): string {
-  return tinycolor(hsv).toHexString();
+  return tinycolor(hsv).toHexString()
 }
 
 type PanResponderCallback = (
@@ -31,7 +31,7 @@ type PanResponderCallback = (
   state: PanResponderGestureState
 ) => boolean;
 
-const fn = () => true;
+const fn = () => true
 /**
  * Simplified pan responder wrapper.
  */
@@ -55,23 +55,23 @@ export function createPanResponder({
         { x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY },
         evt,
         state
-      );
+      )
     },
     onPanResponderMove: (evt, state) => {
       return onMove(
         { x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY },
         evt,
         state
-      );
+      )
     },
     onPanResponderRelease: (evt, state) => {
       return onEnd(
         { x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY },
         evt,
         state
-      );
+      )
     },
-  });
+  })
 }
 
 /**
@@ -88,20 +88,20 @@ export function rotatePoint(
   center: Point2D = { x: 0, y: 0 }
 ) {
   // translation to origin
-  const transOriginX = point.x - center.x;
-  const transOriginY = point.y - center.y;
+  const transOriginX = point.x - center.x
+  const transOriginY = point.y - center.y
 
   // rotation around origin
   const rotatedX =
-    transOriginX * Math.cos(angle) - transOriginY * Math.sin(angle);
+    transOriginX * Math.cos(angle) - transOriginY * Math.sin(angle)
   const rotatedY =
-    transOriginY * Math.cos(angle) + transOriginX * Math.sin(angle);
+    transOriginY * Math.cos(angle) + transOriginX * Math.sin(angle)
 
   // translate back from origin
-  const normalizedX = rotatedX + center.x;
-  const normalizedY = rotatedY + center.y;
+  const normalizedX = rotatedX + center.x
+  const normalizedY = rotatedY + center.y
   return {
     x: normalizedX,
     y: normalizedY,
-  };
+  }
 }
