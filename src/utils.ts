@@ -2,6 +2,7 @@ import {
   GestureResponderEvent,
   PanResponder,
   PanResponderGestureState,
+  PanResponderInstance,
 } from "react-native";
 import tinycolor from "tinycolor2";
 
@@ -31,7 +32,7 @@ type PanResponderCallback = (
   state: PanResponderGestureState
 ) => boolean;
 
-const fn = () => true;
+const fn = (): boolean => true;
 /**
  * Simplified pan responder wrapper.
  */
@@ -43,7 +44,7 @@ export function createPanResponder({
   onStart?: PanResponderCallback;
   onMove?: PanResponderCallback;
   onEnd?: PanResponderCallback;
-}) {
+}): PanResponderInstance {
   return PanResponder.create({
     onStartShouldSetPanResponder: fn,
     onStartShouldSetPanResponderCapture: fn,
@@ -86,7 +87,7 @@ export function rotatePoint(
   point: Point2D,
   angle: number,
   center: Point2D = { x: 0, y: 0 }
-) {
+): Point2D {
   // translation to origin
   const transOriginX = point.x - center.x;
   const transOriginY = point.y - center.y;
@@ -100,6 +101,7 @@ export function rotatePoint(
   // translate back from origin
   const normalizedX = rotatedX + center.x;
   const normalizedY = rotatedY + center.y;
+
   return {
     x: normalizedX,
     y: normalizedY,

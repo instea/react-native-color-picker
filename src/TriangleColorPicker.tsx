@@ -1,8 +1,9 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import {
   I18nManager,
   Image,
   InteractionManager,
+  LayoutChangeEvent,
   PanResponderInstance,
   StyleSheet,
   TouchableOpacity,
@@ -50,7 +51,7 @@ export class TriangleColorPicker extends React.PureComponent<
     rotationHackFactor: 100,
   };
 
-  constructor(props: ITrianglePickerProps, ctx: any) {
+  constructor(props: ITrianglePickerProps, ctx: unknown) {
     super(props, ctx);
 
     const state = {
@@ -89,7 +90,7 @@ export class TriangleColorPicker extends React.PureComponent<
     });
   }
 
-  _getColor() {
+  _getColor(): HsvColor {
     const passedColor =
       typeof this.props.color === "string"
         ? tinycolor(this.props.color).toHsv()
@@ -97,40 +98,42 @@ export class TriangleColorPicker extends React.PureComponent<
     return passedColor || this.state.color;
   }
 
-  _onColorSelected() {
+  _onColorSelected(): void {
     const { onColorSelected } = this.props;
     const color = tinycolor(this._getColor()).toHexString();
     onColorSelected && onColorSelected(color);
   }
 
-  _onOldColorSelected() {
+  _onOldColorSelected(): void {
     const { oldColor, onOldColorSelected } = this.props;
     const color = tinycolor(oldColor);
     this.setState({ color: color.toHsv() });
     onOldColorSelected && onOldColorSelected(color.toHexString());
   }
 
-  _onSValueChange(s) {
+  _onSValueChange(s: number): void {
     const { h, v } = this._getColor();
     this._onColorChange({ h, s, v });
   }
 
-  _onVValueChange(v) {
+  _onVValueChange(v: number): void {
     const { h, s } = this._getColor();
     this._onColorChange({ h, s, v });
   }
 
-  _onColorChange(color) {
+  _onColorChange(color: HsvColor): void {
     this.setState({ color });
     if (this.props.onColorChange) {
       this.props.onColorChange(color);
     }
   }
 
-  _onLayout(l) {
+  _onLayout(l: LayoutChangeEvent): void {
     this._layout = l.nativeEvent.layout;
+
     const { width, height } = this._layout;
     const pickerSize = Math.min(width, height);
+
     if (this.state.pickerSize !== pickerSize) {
       this.setState({ pickerSize });
     }
@@ -139,7 +142,7 @@ export class TriangleColorPicker extends React.PureComponent<
     InteractionManager.runAfterInteractions(() => {
       // measure only after (possible) animation ended
       this.refs.pickerContainer &&
-        (this.refs.pickerContainer as any).measure(
+        (this.refs.pickerContainer as View).measure(
           (x, y, width, height, pageX, pageY) => {
             // picker position in the screen
             this._pageX = pageX;
@@ -149,25 +152,27 @@ export class TriangleColorPicker extends React.PureComponent<
     });
   }
 
-  _computeHValue(x: number, y: number) {
+  _computeHValue(x: number, y: number): number {
     const mx = this.state.pickerSize / 2;
     const my = this.state.pickerSize / 2;
     const dx = x - mx;
     const dy = y - my;
     const rad = Math.atan2(dx, dy) + Math.PI + Math.PI / 2;
+
     return ((rad * 180) / Math.PI) % 360;
   }
 
-  _hValueToRad(deg: number) {
+  _hValueToRad(deg: number): number {
     const rad = (deg * Math.PI) / 180;
+
     return rad - Math.PI - Math.PI / 2;
   }
 
-  getColor() {
+  getColor(): string {
     return tinycolor(this._getColor()).toHexString();
   }
 
-  _handleColorChange = ({ x, y }: Point2D) => {
+  _handleColorChange = ({ x, y }: Point2D): boolean => {
     if (this._changingHColor) {
       this._handleHColorChange({ x, y });
     } else {
@@ -177,7 +182,7 @@ export class TriangleColorPicker extends React.PureComponent<
     return true;
   };
 
-  _handleHColorChange({ x, y }: Point2D) {
+  _handleHColorChange({ x, y }: Point2D): void {
     const { s, v } = this._getColor();
     const marginLeft = (this._layout.width - this.state.pickerSize) / 2;
     const marginTop = (this._layout.height - this.state.pickerSize) / 2;
@@ -187,14 +192,21 @@ export class TriangleColorPicker extends React.PureComponent<
     this._onColorChange({ h, s, v });
   }
 
-  _handleSVColorChange({ x, y }) {
+  _handleSVColorChange({ x, y }: Point2D): void {
     const { h, s: rawS, v: rawV } = this._computeColorFromTriangle({ x, y });
     const s = Math.min(Math.max(0, rawS), 1);
     const v = Math.min(Math.max(0, rawV), 1);
     this._onColorChange({ h, s, v });
   }
 
-  _normalizeTriangleTouch(s, v, sRatio) {
+  _normalizeTriangleTouch(
+    s: number,
+    v: number,
+    sRatio: number
+  ): {
+    s: number;
+    v: number;
+  } {
     const CORNER_ZONE_SIZE = 0.12; // relative size to be considered as corner zone
     const NORMAL_MARGIN = 0.1; // relative triangle margin to be considered as touch in triangle
     const CORNER_MARGIN = 0.05; // relative triangle margin to be considered as touch in triangle in corner zone
@@ -207,17 +219,21 @@ export class TriangleColorPicker extends React.PureComponent<
     const rightCorner = s > 1 - CORNER_ZONE_SIZE && v > 1 - CORNER_ZONE_SIZE;
     const leftCorner = ns < 0 + CORNER_ZONE_SIZE && v > 1 - CORNER_ZONE_SIZE;
     const topCorner = ns < 0 + CORNER_ZONE_SIZE && v < 0 + CORNER_ZONE_SIZE;
+
     if (rightCorner) {
       return { s, v };
     }
+
     if (leftCorner || topCorner) {
       margin = CORNER_MARGIN;
     }
+
     // color normalization according to margin
     s = s < 0 && ns > 0 - margin ? 0 : s;
     s = s > 1 && ns < 1 + margin ? 1 : s;
     v = v < 0 && v > 0 - margin ? 0 : v;
     v = v > 1 && v < 1 + margin ? 1 : v;
+
     return { s, v };
   }
 
@@ -225,7 +241,7 @@ export class TriangleColorPicker extends React.PureComponent<
    * Computes s, v from position (x, y). If position is outside of triangle,
    * it will return invalid values (greater than 1 or lower than 0)
    */
-  _computeColorFromTriangle({ x, y }) {
+  _computeColorFromTriangle({ x, y }: Point2D): HsvColor {
     const { pickerSize } = this.state;
     const { triangleHeight, triangleWidth } = getPickerProperties(pickerSize);
 
@@ -264,7 +280,7 @@ export class TriangleColorPicker extends React.PureComponent<
     return { h, s: normalized.s, v: normalized.v };
   }
 
-  render() {
+  render(): ReactNode {
     const { pickerSize } = this.state;
     const { oldColor, style } = this.props;
     const color = this._getColor();

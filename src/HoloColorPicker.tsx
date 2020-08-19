@@ -1,8 +1,9 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import {
   I18nManager,
   Image,
   InteractionManager,
+  LayoutChangeEvent,
   PanResponderInstance,
   Slider,
   StyleSheet,
@@ -38,18 +39,22 @@ export class HoloColorPicker extends React.PureComponent<
   private _isRTL: boolean;
   private _pickerResponder: PanResponderInstance;
 
-  constructor(props: IHoloPickerProps, ctx: any) {
+  constructor(props: IHoloPickerProps, ctx: unknown) {
     super(props, ctx);
+
     const state = {
       color: { h: 0, s: 1, v: 1 },
       pickerSize: null,
     };
+
     if (props.oldColor) {
       state.color = tinycolor(props.oldColor).toHsv();
     }
+
     if (props.defaultColor) {
       state.color = tinycolor(props.defaultColor).toHsv();
     }
+
     this.state = state;
     this._layout = { width: 0, height: 0, x: 0, y: 0 };
     this._pageX = 0;
@@ -66,7 +71,7 @@ export class HoloColorPicker extends React.PureComponent<
     });
   }
 
-  _getColor() {
+  _getColor(): HsvColor {
     const passedColor =
       typeof this.props.color === "string"
         ? tinycolor(this.props.color).toHsv()
@@ -74,44 +79,42 @@ export class HoloColorPicker extends React.PureComponent<
     return passedColor || this.state.color;
   }
 
-  _onColorSelected() {
+  _onColorSelected(): void {
     const { onColorSelected } = this.props;
     const color = tinycolor(this._getColor()).toHexString();
     onColorSelected && onColorSelected(color);
   }
 
-  _onOldColorSelected() {
+  _onOldColorSelected(): void {
     const { oldColor, onOldColorSelected } = this.props;
     const color = tinycolor(oldColor);
     this.setState({ color: color.toHsv() });
     onOldColorSelected && onOldColorSelected(color.toHexString());
   }
 
-  _onSValueChange(s: number) {
+  _onSValueChange(s: number): void {
     const { h, v } = this._getColor();
     this._onColorChange({ h, s, v });
   }
 
-  _onVValueChange(v: number) {
+  _onVValueChange(v: number): void {
     const { h, s } = this._getColor();
     this._onColorChange({ h, s, v });
   }
 
-  _onColorChange(color: { h: number; s: any; v: any }) {
+  _onColorChange(color: { h: number; s: number; v: number }): void {
     this.setState({ color });
     if (this.props.onColorChange) {
       this.props.onColorChange(color);
     }
   }
 
-  _onLayout(l: {
-    nativeEvent: {
-      layout: { width: number; height: number; x: number; y: number };
-    };
-  }) {
+  _onLayout(l: LayoutChangeEvent): void {
     this._layout = l.nativeEvent.layout;
+
     const { width, height } = this._layout;
     const pickerSize = Math.min(width, height);
+
     if (this.state.pickerSize !== pickerSize) {
       this.setState({ pickerSize });
     }
@@ -120,15 +123,8 @@ export class HoloColorPicker extends React.PureComponent<
     InteractionManager.runAfterInteractions(() => {
       // measure only after (possible) animation ended
       this.refs.pickerContainer &&
-        (this.refs.pickerContainer as any).measure(
-          (
-            x: number,
-            y: number,
-            width: number,
-            height: number,
-            pageX: number,
-            pageY: number
-          ) => {
+        (this.refs.pickerContainer as View).measure(
+          (x, y, width, height, pageX, pageY) => {
             // picker position in the screen
             this._pageX = pageX;
             this._pageY = pageY;
@@ -137,7 +133,7 @@ export class HoloColorPicker extends React.PureComponent<
     });
   }
 
-  _handleColorChange = ({ x, y }: Point2D) => {
+  _handleColorChange = ({ x, y }: Point2D): boolean => {
     const { s, v } = this._getColor();
     const marginLeft = (this._layout.width - this.state.pickerSize) / 2;
     const marginTop = (this._layout.height - this.state.pickerSize) / 2;
@@ -149,17 +145,19 @@ export class HoloColorPicker extends React.PureComponent<
     return true;
   };
 
-  _computeHValue(x: number, y: number) {
+  _computeHValue(x: number, y: number): number {
     const mx = this.state.pickerSize / 2;
     const my = this.state.pickerSize / 2;
     const dx = x - mx;
     const dy = y - my;
     const rad = Math.atan2(dx, dy) + Math.PI + Math.PI / 2;
+
     return ((rad * 180) / Math.PI) % 360;
   }
 
-  _hValueToRad(deg: number) {
+  _hValueToRad(deg: number): number {
     const rad = (deg * Math.PI) / 180;
+
     return rad - Math.PI - Math.PI / 2;
   }
 
@@ -169,7 +167,7 @@ export class HoloColorPicker extends React.PureComponent<
     }
 
     if (this.props.sliderComponent) {
-      return this.props.sliderComponent as any;
+      return (this.props.sliderComponent as unknown) as typeof Slider;
     }
 
     if (!Slider) {
@@ -181,11 +179,11 @@ export class HoloColorPicker extends React.PureComponent<
     return Slider;
   }
 
-  getColor() {
+  getColor(): string {
     return tinycolor(this._getColor()).toHexString();
   }
 
-  render() {
+  render(): ReactNode {
     const { pickerSize } = this.state;
     const { oldColor, style } = this.props;
 

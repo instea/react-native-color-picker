@@ -6,7 +6,7 @@ export interface IPickerProps {
   color?: string | HsvColor;
   defaultColor?: string | HsvColor;
   oldColor?: string;
-  style?: object;
+  style?: Record<string, unknown>;
   onColorSelected?: (selectedColor: string) => void;
   onColorChange?: (selectedColor: HsvColor) => void;
   onOldColorSelected?: (oldColor: string) => void;
