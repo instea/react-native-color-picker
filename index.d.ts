@@ -13,6 +13,7 @@ declare module 'react-native-color-picker' {
     onOldColorSelected?: (oldColor: string) => void;
     hideSliders?: boolean;
     hideControls?: boolean;
+    rotationHackFactor?: number;
   }
 
   export interface SliderProps {
