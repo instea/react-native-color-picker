@@ -1,6 +1,6 @@
 {
   "name": "react-native-color-picker",
-  "version": "0.6.0-rc.1",
+  "version": "0.6.0-rc.2",
   "description": "Color picker for react native",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,8 +9,7 @@
     "dev": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint \"src/**/*.{js,ts,tsx}\"",
-    "prepack": "npm run build",
-    "postinstall": "npm run build"
+    "prepack": "npm run build"
   },
   "repository": {
     "type": "git",
