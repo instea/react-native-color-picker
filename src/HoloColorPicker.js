@@ -1,7 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { TouchableOpacity, Slider, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
+import { TouchableOpacity, View, Image, StyleSheet, InteractionManager, I18nManager } from 'react-native'
 import tinycolor from 'tinycolor2'
+import Slider from '@react-native-community/slider';
+
+
 import { createPanResponder } from './utils'
 
 export class HoloColorPicker extends React.PureComponent {
