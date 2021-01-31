@@ -33,6 +33,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
+    "@react-native-community/slider": "^3.0.3",
     "prop-types": "^15.5.10",
     "tinycolor2": "^1.4.1"
   }
