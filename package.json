@@ -1,9 +1,11 @@
 {
   "name": "react-native-color-picker",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Color picker for react native",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "react-native": "src/index.ts",
+  "source": "src/index.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
