@@ -4,11 +4,11 @@ import {
   Image,
   InteractionManager,
   PanResponderInstance,
-  Slider,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native"
+import Slider from "@react-native-community/slider"
 import tinycolor from "tinycolor2"
 
 import { HsvColor, IPickerProps, Point2D } from "./typeHelpers"
